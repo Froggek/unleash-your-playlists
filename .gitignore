@@ -1,5 +1,12 @@
 # VS stuffs 
 *.code-workspace
+*.vscode
+
+# Config
+*/**/config.yaml
+
+# Temp data
+**/*.tmp.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

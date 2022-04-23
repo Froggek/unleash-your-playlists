@@ -1,0 +1,13 @@
+credentials: 
+  spotify:
+    access_token: xxx-xxx-xxx-xxx
+  deezer:
+    app_id: 1234
+    app_secret: abcd
+    app_redirect_uri: "http://somewhere.domain"
+
+    access_token: yyy-yyy-yyy-yyy
+
+output:
+  temp_file_path: $ROOT/data/out.tmp.json
+
