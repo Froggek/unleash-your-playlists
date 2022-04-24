@@ -3,13 +3,13 @@
 Have you ever felt the *frustration* of of being on vacation, or at a party, with some friends of yours, and chilling out while passively listening to some trendy and appropriate music tracks ... 
 And then, as if you wanted to take a bit of that atmosphere and bring it back home, you're asking the DJ: "shoot me your playlist, it's so cool!"
 
-And you get as an answer: "Sure! It's on XXX, my favorite online music service!"
+And you get as an answer: "Sure! It's on *Spotify*, my favorite online music service!"
 
-**Sh\*t**! *You're on YYY.*
+**Sh\*t**! *You're on Deezer/Apple Music/Amazon Music/whatever-not-spotify-music!*
 
 ## Technically
 Our goal here is to duplicate a given playlist from one online service to another, in a best effort mode. 
-And in an absolutely legal way, of course ;-) 
+It aims at releasing a bit the vendor lock-ins ... in an absolutely legal way, of course ;-) 
 
 The first PoC attempts to do so from **[Spotify](https://www.spotify.com/)** to **[Deezer](https://www.deezer.com/en/)**. 
 Ultimately, we want to: 
