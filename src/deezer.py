@@ -18,7 +18,7 @@ def get_access_token():
     # print(response.json())
 
 
-def search_track(access_token, track_name, artist_names='', temp_out_file='out.tmp.json'): 
+def search_track(access_token, track_name, artist_names='', temp_out_file=''): 
 
     query_params = { 'access_token': access_token }
 
@@ -30,13 +30,18 @@ def search_track(access_token, track_name, artist_names='', temp_out_file='out.t
     # https://developers.deezer.com/api/search 
     # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
     query_params['q'] = (f'artist:"{artist_names}"' if artist_names else '') + f'track:"{track_name}"'
+    # Hopefully retrieving the most relevant tracks first 
+    query_params['order'] = 'RANKING'
 
     response = requests.get('https://api.deezer.com/search', params=query_params)
 
-    with open(temp_out_file, 'w') as f:
-        f.write(response.text)
+    if (temp_out_file): 
+        with open(temp_out_file, 'w') as f:
+            f.write(response.text)
+    
+    response_json = response.json() 
 
-    # print(response.json())
+    return response_json['total'], (response_json['data'][0]['id'] if response_json['data'] else None)
 
 
 

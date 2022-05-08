@@ -23,22 +23,26 @@ if __name__ == '__main__':
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
         ) 
 
-    # count:int = 0 
-    # for item in playlist_tracks:
-    #     track = item['track']
-    #     count += 1
-    #     print(track['name'], end='')
-    #     for artist in track['artists']: 
-    #         print('-' + artist['name'], end='')
-    #     if count % 50 == 0: 
-    #         print('========================================================')
-    #     else: 
-    #         print ('')
+    count:int = 0 
+    for item in playlist_tracks:
+        track = item['track']
+        track_name = track['name']
+        artists = ' '.join(artist['name'] for artist in track['artists'])
+        count += 1
+        print(f'#{count}: {track_name} ({artists})')
+
+        nb_hits, id = search_track(config['credentials']['deezer']['access_token'], track_name, artists)
+        # TODO: report, print what has been found, and compare 
+        print(f'Found {nb_hits} match(es) - #{id}')
+
+        
+
+    # search_track(config['credentials']['deezer']['access_token'], 'Maryland', 'Elephanz Eugénie'\
+    #     , temp_out_file=os.path.join(TEMP_DIR_PATH, 'found_track.tmp.json'))
 
     # print(count)
 
-    search_track(config['credentials']['deezer']['access_token'], 'Maryland', 'Elephanz Eugénie'\
-        , temp_out_file=os.path.join(TEMP_DIR_PATH, 'found_track.tmp.json')) 
+     
 
     
         

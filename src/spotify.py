@@ -26,7 +26,6 @@ def retrieve_playlist(access_token, playlist_id, out_file_path=''):
     query_params = { 'fields': 'items(track(name).artists(name)),total', 'limit': PAGE_SIZE }
     query_path = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
 
-    number_of_tracks: int = -1 
     tracks = list()    
 
     while other_tracks_to_retrieve: 
@@ -34,10 +33,9 @@ def retrieve_playlist(access_token, playlist_id, out_file_path=''):
         response = requests.get(query_path, params=query_params, headers=request_headers)
         # TODO: check status code
 
-        number_of_tracks: int = response.json()['total']
         tracks += response.json()['items']
         offset += PAGE_SIZE
-        other_tracks_to_retrieve = (offset < number_of_tracks)
+        other_tracks_to_retrieve = (offset < response.json()['total'])
 
 
     if out_file_path:
