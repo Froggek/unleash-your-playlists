@@ -26,6 +26,8 @@ def search_track(access_token, track_name, artist_names='', temp_out_file='out.t
     # response = requests.get('https://api.deezer.com/user/me', params=query_params)
     # print(response.json())
 
+    # Performing a Deezer "Advanced Search"
+    # https://developers.deezer.com/api/search 
     # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
     query_params['q'] = (f'artist:"{artist_names}"' if artist_names else '') + f'track:"{track_name}"'
 
@@ -34,7 +36,7 @@ def search_track(access_token, track_name, artist_names='', temp_out_file='out.t
     with open(temp_out_file, 'w') as f:
         f.write(response.text)
 
-    print(response.json())
+    # print(response.json())
 
 
 
