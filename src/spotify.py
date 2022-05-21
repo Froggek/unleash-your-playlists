@@ -15,11 +15,11 @@ def get_access_token(client_id, client_secret, refresh_token):
     return response.json()['access_token']
 
 
-def retrieve_playlist(access_token, playlist_id, out_file_path=''): 
+def retrieve_playlist(access_token, playlist_id, out_file_path='', test_threshold=None): 
     # Since Spotify response is paginated, we need to provide an offset + a limit 
     offset = 0
     other_tracks_to_retrieve = True
-    PAGE_SIZE: int = 50
+    PAGE_SIZE: int = 50 if not test_threshold else test_threshold
 
     request_headers = CaseInsensitiveDict() 
     request_headers['Authorization'] = f'Bearer {access_token}'
@@ -35,7 +35,7 @@ def retrieve_playlist(access_token, playlist_id, out_file_path=''):
 
         tracks += response.json()['items']
         offset += PAGE_SIZE
-        other_tracks_to_retrieve = (offset < response.json()['total'])
+        other_tracks_to_retrieve = (offset < response.json()['total']) if not test_threshold else (offset < test_threshold)
 
 
     if out_file_path:

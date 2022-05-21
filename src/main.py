@@ -1,7 +1,8 @@
+from array import array
 import os
 import yaml 
 
-from deezer import search_track
+from deezer import search_track, add_tracks_to_playlist
 from spotify import retrieve_playlist, get_access_token
 
 # TODO: 
@@ -18,12 +19,16 @@ if __name__ == '__main__':
     TEMP_DIR_PATH = config['output']['temp_dir_path'].replace('$ROOT', PROJECT_ROOT_PATH)
 
     spotify_credentials = config['credentials']['spotify']
-    access_token = get_access_token(spotify_credentials['app_id'], spotify_credentials['app_secret'], spotify_credentials['refresh_token'])
-    playlist_tracks = retrieve_playlist(access_token, playlist_id='3Rj1ranRmxL3Xy15AWMq4v'\
+    spotify_access_token = get_access_token(spotify_credentials['app_id'], spotify_credentials['app_secret'], spotify_credentials['refresh_token'])
+    playlist_tracks = retrieve_playlist(spotify_access_token, playlist_id='3Rj1ranRmxL3Xy15AWMq4v'\
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
+        , test_threshold=10\
         ) 
 
+    deezer_access_token = config['credentials']['deezer']['access_token']
     count:int = 0 
+    deezer_tracks_ids = []
+
     for item in playlist_tracks:
         track = item['track']
         track_name = track['name']
@@ -32,10 +37,14 @@ if __name__ == '__main__':
         print(f'#{count}: {track_name} ({artists})')
 
         nb_hits, id = search_track(config['credentials']['deezer']['access_token'], track_name, artists)
+        if nb_hits > 0: 
+            deezer_tracks_ids.append(id)
+
         # TODO: report, print what has been found, and compare 
         print(f'Found {nb_hits} match(es) - #{id}')
 
-        
+    if (deezer_tracks_ids): 
+        add_tracks_to_playlist(deezer_access_token, playlist_id='10323078762', tracks_ids=deezer_tracks_ids)
 
     # search_track(config['credentials']['deezer']['access_token'], 'Maryland', 'Elephanz Eugénie'\
     #     , temp_out_file=os.path.join(TEMP_DIR_PATH, 'found_track.tmp.json'))

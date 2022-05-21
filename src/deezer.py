@@ -1,5 +1,5 @@
 import requests, os, yaml 
-# from requests.models import CaseInsensitiveDict
+from requests.models import CaseInsensitiveDict
 
 def get_access_token(): 
     """ This function is not ready yet... """
@@ -55,7 +55,16 @@ def search_track(access_token, track_name, artist_names='', temp_out_file=''):
 
     return response_json['total'], (response_json['data'][0]['id'] if response_json['data'] else None)
 
-def add_track_to_playlist(access_token, playlist_id, track_id):
+def add_tracks_to_playlist(access_token, playlist_id, tracks_ids):
+    # TODO: option to previously clear the playlist 
+
     query_params = { 'access_token': access_token }
-    body_params = { 'songs': [track_id] }
-    requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params, data=body_params)
+    # Thank you steinitzu 
+    # https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py 
+    # The songs must be provided as a QUERY parameter (serialized array)  
+    query_params['songs'] = ','.join(str(track) for track in tracks_ids) 
+    response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
+
+    print(response.request.url)
+    print(response.json())
+
