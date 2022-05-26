@@ -57,12 +57,15 @@ def search_track(access_token, track_name, artist_names='', temp_out_file=''):
 
 def add_tracks_to_playlist(access_token, playlist_id, tracks_ids):
     # TODO: option to previously clear the playlist 
+    # TODO: or check what's already in the target playlist 
 
     query_params = { 'access_token': access_token }
     # Thank you steinitzu 
     # https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py 
     # The songs must be provided as a QUERY parameter (serialized array)  
     query_params['songs'] = ','.join(str(track) for track in tracks_ids) 
+    # TODO masQueryString = 1024 characters 
+    
     response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
 
     print(response.request.url)

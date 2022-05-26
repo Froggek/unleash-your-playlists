@@ -20,7 +20,8 @@ if __name__ == '__main__':
 
     spotify_credentials = config['credentials']['spotify']
     spotify_access_token = get_access_token(spotify_credentials['app_id'], spotify_credentials['app_secret'], spotify_credentials['refresh_token'])
-    playlist_tracks = retrieve_playlist(spotify_access_token, playlist_id='3Rj1ranRmxL3Xy15AWMq4v'\
+    # TODO: check source service 
+    playlist_tracks = retrieve_playlist(spotify_access_token, playlist_id=config['source']['playlist_id']\
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
         , test_threshold=10\
         ) 
@@ -41,10 +42,11 @@ if __name__ == '__main__':
             deezer_tracks_ids.append(id)
 
         # TODO: report, print what has been found, and compare 
-        print(f'Found {nb_hits} match(es) - #{id}')
+        print(f'Found {nb_hits} match(es) - Keeping #{id}')
 
     if (deezer_tracks_ids): 
-        add_tracks_to_playlist(deezer_access_token, playlist_id='10323078762', tracks_ids=deezer_tracks_ids)
+        # TODO: check target service 
+        add_tracks_to_playlist(deezer_access_token, playlist_id=config['target']['playlist_id'], tracks_ids=deezer_tracks_ids)
 
     # search_track(config['credentials']['deezer']['access_token'], 'Maryland', 'Elephanz Eugénie'\
     #     , temp_out_file=os.path.join(TEMP_DIR_PATH, 'found_track.tmp.json'))
