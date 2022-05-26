@@ -1,6 +1,7 @@
+from math import floor
 import requests, os, yaml 
 import json 
-from requests.models import CaseInsensitiveDict
+import helpers
 
 def get_access_token(): 
     """ This function is not ready yet... """
@@ -77,10 +78,7 @@ def search_track(access_token, track_name, artist_names='', temp_out_file=''):
             f.write(response.text)
 
     # Handling codes != 2xx 
-    if response.status_code not in range(200, 300):
-        # TODO: have proper logs 
-        print(f'Error when searching for a Deezer track: {track_name} ({artist_names})')
-        print(f'Code: {response.status_code} ({response.reason}) - Message: {response.text}')
+    if not helpers.is_response_2xx(response, f'Error when searching for a Deezer track: {track_name} ({artist_names})'): 
         return 0, None 
     
     response_json = response.json() 
@@ -103,12 +101,15 @@ def add_tracks_to_playlist(access_token, playlist_id, tracks_ids):
     # Thank you steinitzu 
     # https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py 
     # The songs must be provided as a QUERY parameter (serialized array)  
-    query_params['songs'] = ','.join(str(track) for track in tracks_ids) 
-    # TODO masQueryString = 1024 characters 
     
-    response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
-    print(f'Query length: {len(response.url)}')
+    # TODO masQueryString = 1024 characters 
+    pivot = floor(len(tracks_ids) / 2)
 
-    print(response.request.url)
-    print(response.json())
+    query_params['songs'] = ','.join(str(track) for track in tracks_ids[:pivot]) 
+    response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
+    helpers.is_response_2xx(response, f'1-Error while adding tracks: {query_params["songs"]}')
+
+    query_params['songs'] = ','.join(str(track) for track in tracks_ids[pivot:]) 
+    response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
+    helpers.is_response_2xx(response, f'2-Error while adding tracks: {query_params["songs"]}')
 
