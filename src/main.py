@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # TODO: check source service 
     playlist_tracks = retrieve_playlist(spotify_access_token, playlist_id=config['source']['playlist_id']\
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
-        , test_threshold=10\
+        # , test_threshold=10\
         ) 
 
     deezer_access_token = config['credentials']['deezer']['access_token']
@@ -48,8 +48,6 @@ if __name__ == '__main__':
         # TODO: check target service 
         add_tracks_to_playlist(deezer_access_token, playlist_id=config['target']['playlist_id'], tracks_ids=deezer_tracks_ids)
 
-    # search_track(config['credentials']['deezer']['access_token'], 'Maryland', 'Elephanz Eugénie'\
-    #     , temp_out_file=os.path.join(TEMP_DIR_PATH, 'found_track.tmp.json'))
 
     # print(count)
 

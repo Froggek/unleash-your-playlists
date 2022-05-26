@@ -47,9 +47,14 @@ def search_track(access_token, track_name, artist_names='', temp_out_file=''):
 
     response = requests.get('https://api.deezer.com/search', params=query_params)
 
+    # Loging result 
     if (temp_out_file): 
         with open(temp_out_file, 'w') as f:
             f.write(response.text)
+
+    # Handling codes != 2xx 
+    if response.status_code not in range(200, 300):
+        return 0, None 
     
     response_json = response.json() 
 
