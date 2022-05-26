@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # TODO: check source service 
     playlist_tracks = retrieve_playlist(spotify_access_token, playlist_id=config['source']['playlist_id']\
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
-        # , test_threshold=10\
+        # , test_threshold=100\
         ) 
 
     deezer_access_token = config['credentials']['deezer']['access_token']

@@ -1,3 +1,4 @@
+from nntplib import ArticleInfo
 import requests, os, yaml 
 from requests.models import CaseInsensitiveDict
 
@@ -54,6 +55,9 @@ def search_track(access_token, track_name, artist_names='', temp_out_file=''):
 
     # Handling codes != 2xx 
     if response.status_code not in range(200, 300):
+        # TODO: have proper logs 
+        print(f'Error when searching for a Deezer track: {track_name} ({artist_names})')
+        print(f'Code: {response.status_code} ({response.reason}) - Message: {response.text}')
         return 0, None 
     
     response_json = response.json() 
@@ -72,6 +76,7 @@ def add_tracks_to_playlist(access_token, playlist_id, tracks_ids):
     # TODO masQueryString = 1024 characters 
     
     response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
+    print(f'Query length: {len(response.url)}')
 
     print(response.request.url)
     print(response.json())
