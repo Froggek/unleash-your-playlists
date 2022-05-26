@@ -1,5 +1,5 @@
-from nntplib import ArticleInfo
 import requests, os, yaml 
+import json 
 from requests.models import CaseInsensitiveDict
 
 def get_access_token(): 
@@ -30,7 +30,30 @@ def get_access_token():
 # if __name__ == "__main__":
 #     get_access_token()
 
+def search_tracks(access_token, playlist_tracks, output_file_path=''): 
+    deezer_tracks_ids = []
+    count:int = 0  
 
+    for item in playlist_tracks:
+        track = item['track']
+        track_name = track['name']
+        artists = ' '.join(artist['name'] for artist in track['artists'])
+        count += 1
+        print(f'#{count}: {track_name} ({artists})')
+
+        nb_hits, id = search_track(access_token, track_name, artists)
+        if nb_hits > 0: 
+            deezer_tracks_ids.append(id)
+
+        # TODO: report, print what has been found, and compare 
+        print(f'Found {nb_hits} match(es) - Keeping #{id}')
+
+    if (output_file_path): 
+        with open(output_file_path, 'w') as f: 
+            f.write(json.dumps(deezer_tracks_ids))
+
+    return deezer_tracks_ids
+    
 def search_track(access_token, track_name, artist_names='', temp_out_file=''): 
 
     query_params = { 'access_token': access_token }
@@ -63,6 +86,14 @@ def search_track(access_token, track_name, artist_names='', temp_out_file=''):
     response_json = response.json() 
 
     return response_json['total'], (response_json['data'][0]['id'] if response_json['data'] else None)
+
+def add_tracks_to_playlist_from_list_ids(access_token, playlist_id, tracks_ids):
+    return add_tracks_to_playlist(access_token, playlist_id, tracks_ids)
+
+def add_tracks_to_playlist_from_file(access_token, playlist_id, tracks_file_path):
+    with open(tracks_file_path) as f: 
+        tracks_ids = json.loads(f.read())
+    return add_tracks_to_playlist(access_token, playlist_id, tracks_ids)
 
 def add_tracks_to_playlist(access_token, playlist_id, tracks_ids):
     # TODO: option to previously clear the playlist 
