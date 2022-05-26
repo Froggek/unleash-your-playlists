@@ -101,15 +101,18 @@ def add_tracks_to_playlist(access_token, playlist_id, tracks_ids):
     # Thank you steinitzu 
     # https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py 
     # The songs must be provided as a QUERY parameter (serialized array)  
-    
+
+    tracks_set = set([ t for t in tracks_ids])
+    tracks_duplicates = [ t for t in tracks_ids if tracks_ids.count(t) > 1 ]
+    if tracks_duplicates: 
+        print(f'The following track # have been duplicated from the source: ')
+        for t in tracks_duplicates: 
+            print(f"# {t}")
+
+
     # TODO masQueryString = 1024 characters 
-    pivot = floor(len(tracks_ids) / 2)
-
-    query_params['songs'] = ','.join(str(track) for track in tracks_ids[:pivot]) 
+    query_params['songs'] = ','.join(str(track) for track in tracks_set) 
     response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
-    helpers.is_response_2xx(response, f'1-Error while adding tracks: {query_params["songs"]}')
+    helpers.is_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
 
-    query_params['songs'] = ','.join(str(track) for track in tracks_ids[pivot:]) 
-    response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
-    helpers.is_response_2xx(response, f'2-Error while adding tracks: {query_params["songs"]}')
 

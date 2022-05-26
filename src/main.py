@@ -42,6 +42,4 @@ if __name__ == '__main__':
         add_tracks_to_playlist_from_file(deezer_access_token, config['target']['playlist_id']\
             , os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
             )
-
-    # print(count) 
         

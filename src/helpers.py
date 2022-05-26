@@ -22,8 +22,10 @@ def is_response_2xx(rep: requests.Response, custom_error_message:str='') -> bool
 
 # TODO: move to a Deezer class
 # TODO: might not be serializable in json  
-def is_deezer_response_ok(rep:requests.Response) -> tuple[bool, str]: 
-    # A single boolean can be returned if teh requests succeeds 
+def is_deezer_response_ok(rep:requests.Response) -> tuple[bool, str]:
+    """Deezer-specific errors are detailed here: https://developers.deezer.com/api/errors"""
+
+    # A single boolean can be returned if the request succeeds 
     if isinstance(rep.json(), dict) and 'error' in rep.json():
         deezer_error = rep.json()['error'] 
         return False, f'Code: {deezer_error["code"]} ({deezer_error["type"]}) - Message: {deezer_error["message"]}'
