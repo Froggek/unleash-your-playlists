@@ -8,6 +8,9 @@
 # Temp data
 **/*.tmp.json
 
+# Test files / sandboxes
+**/sandbox.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
