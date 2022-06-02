@@ -11,10 +11,15 @@ class MusicProviderSpotify(MusicProvider):
     def __init__(self):
         super().__init__()
 
-    def set_access_token(self, client_id, client_secret, refresh_token):
+    def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
         """Request a refreshed access token
         See official doc: https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-a-refreshed-access-token
         """
+
+        # TODO 
+        if not refresh_token:
+            raise Exception('Refresh token is required')
+
         basic_auth = HTTPBasicAuth(client_id, client_secret) 
         body_params = { 'grant_type': 'refresh_token', 'refresh_token': refresh_token }
         response = requests.post('https://accounts.spotify.com/api/token', auth=basic_auth, data=body_params)

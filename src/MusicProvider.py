@@ -10,8 +10,9 @@ class MusicProvider(ABC):
     def _get_access_token(self)->str:
         return self.__access_token     
     
+    
     @abstractmethod
-    def set_access_token(self, client_id, client_secret, refresh_token):
+    def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
         raise NotImplementedError 
 
     @abstractmethod

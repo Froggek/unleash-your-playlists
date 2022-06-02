@@ -3,6 +3,54 @@ import requests, os, yaml
 import json 
 import helpers
 
+from MusicProvider import MusicProvider
+
+class MusicProviderDeezer(MusicProvider):
+    def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
+        # TODO
+        if not access_token:
+            raise Exception('Access token is required')
+
+        self._set_access_token(access_token) 
+
+
+    def retrieve_playlist(self, playlist_id, out_file_path='', test_threshold=None):
+        return super().retrieve_playlist(playlist_id, out_file_path, test_threshold)    
+        
+
+    def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list):
+        # TODO: option to previously clear the playlist 
+        # TODO: or check what's already in the target playlist 
+
+        query_params = { 'access_token': self._get_access_token() }
+        # Thank you steinitzu 
+        # https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py 
+        # The songs must be provided as a QUERY parameter (serialized array)  
+
+        tracks_set = set([ t for t in tracks_ids])
+        tracks_duplicates = [ t for t in tracks_ids if tracks_ids.count(t) > 1 ]
+        if tracks_duplicates: 
+            print(f'The following track # have been duplicated from the source: ')
+            for t in tracks_duplicates: 
+                print(f"# {t}")
+
+        # TODO maxQueryString = 1024 characters 
+        query_params['songs'] = ','.join(str(track) for track in tracks_set) 
+        response = requests.post(f'https://api.deezer.com/playlist/{ playlist_id }/tracks', params=query_params)
+        helpers.is_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
+
+
+    def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
+        if not tracks_ids:  
+            if tracks_file_path: 
+                with open(tracks_file_path) as f: 
+                    tracks_ids = json.loads(f.read())
+            else: 
+                raise Exception('Either a list of tracks or a track file path are required')
+
+        return self.__add_tracks_to_playlist(playlist_id, tracks_ids)
+
+
 def get_access_token(): 
     """ This function is not ready yet... """
 
@@ -27,9 +75,6 @@ def get_access_token():
     # response = requests.get('https://connect.deezer.com/oauth/access_token.php', params=query_params) 
     # print(response.json())
 
-
-# if __name__ == "__main__":
-#     get_access_token()
 
 def search_tracks(access_token, playlist_tracks, output_file_path=''): 
     deezer_tracks_ids = []
@@ -85,35 +130,9 @@ def search_track(access_token, track_name, artist_names='', temp_out_file=''):
 
     return response_json['total'], (response_json['data'][0]['id'] if response_json['data'] else None)
 
-def add_tracks_to_playlist_from_list_ids(access_token, playlist_id, tracks_ids):
-    return add_tracks_to_playlist(access_token, playlist_id, tracks_ids)
-
-def add_tracks_to_playlist_from_file(access_token, playlist_id, tracks_file_path):
-    with open(tracks_file_path) as f: 
-        tracks_ids = json.loads(f.read())
-    return add_tracks_to_playlist(access_token, playlist_id, tracks_ids)
-
-def add_tracks_to_playlist(access_token, playlist_id, tracks_ids):
-    # TODO: option to previously clear the playlist 
-    # TODO: or check what's already in the target playlist 
-
-    query_params = { 'access_token': access_token }
-    # Thank you steinitzu 
-    # https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py 
-    # The songs must be provided as a QUERY parameter (serialized array)  
-
-    tracks_set = set([ t for t in tracks_ids])
-    tracks_duplicates = [ t for t in tracks_ids if tracks_ids.count(t) > 1 ]
-    if tracks_duplicates: 
-        print(f'The following track # have been duplicated from the source: ')
-        for t in tracks_duplicates: 
-            print(f"# {t}")
 
 
-    # TODO masQueryString = 1024 characters 
-    query_params['songs'] = ','.join(str(track) for track in tracks_set) 
-    response = requests.post(f'https://api.deezer.com/playlist/{playlist_id}/tracks', params=query_params)
-    helpers.is_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
+
 
 
 

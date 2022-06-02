@@ -2,8 +2,8 @@ from array import array
 import os
 import yaml 
 
-from deezer import add_tracks_to_playlist_from_file, add_tracks_to_playlist_from_list_ids, search_tracks, add_tracks_to_playlist
-from MusicProviderSpotify import retrieve_playlist, get_access_token, MusicProviderSpotify
+from MusicProviderDeezer import MusicProviderDeezer, search_tracks
+from MusicProviderSpotify import MusicProviderSpotify
 
 # TODO: 
 # - Error management (HTTP codes) 
@@ -21,15 +21,17 @@ if __name__ == '__main__':
     spotify:MusicProviderSpotify = MusicProviderSpotify()
     spotify_credentials = config['credentials']['spotify']
     # TODO: have this in ctor 
-    spotify.set_access_token(spotify_credentials['app_id'], spotify_credentials['app_secret'], spotify_credentials['refresh_token'])
+    spotify.set_access_token(client_id=spotify_credentials['app_id'], client_secret=spotify_credentials['app_secret']\
+        , refresh_token=spotify_credentials['refresh_token'])
+
+    deezer:MusicProviderDeezer = MusicProviderDeezer()
+    deezer.set_access_token(access_token=config['credentials']['deezer']['access_token'])
 
     # TODO: check source service 
     playlist_tracks = spotify.retrieve_playlist(playlist_id=config['source']['playlist_id']\
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
         # , test_threshold=100\
         ) 
-
-    deezer_access_token = config['credentials']['deezer']['access_token']
 
     # TODO 
     if (False): 
@@ -42,8 +44,8 @@ if __name__ == '__main__':
             # TODO: check target service 
             add_tracks_to_playlist_from_list_ids(deezer_access_token, playlist_id=config['target']['playlist_id'], tracks_ids=deezer_tracks_ids)
     else: 
-        add_tracks_to_playlist_from_file(deezer_access_token, config['target']['playlist_id']\
-            , os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
+        deezer.add_tracks_to_playlist(playlist_id=config['target']['playlist_id']\
+            , tracks_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
             )
 
 
