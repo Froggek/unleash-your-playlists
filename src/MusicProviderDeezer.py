@@ -12,11 +12,7 @@ class MusicProviderDeezer(MusicProvider):
             raise Exception('Access token is required')
 
         self._set_access_token(access_token) 
-
-
-    def retrieve_playlist(self, playlist_id, out_file_path='', test_threshold=None):
-        return super().retrieve_playlist(playlist_id, out_file_path, test_threshold)    
-        
+    
 
     def __search_track(self, track_name: str, artist_names:str='', temp_out_file:str='')->tuple: 
         query_params = { 'access_token': self._get_access_token() }

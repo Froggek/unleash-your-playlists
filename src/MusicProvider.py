@@ -15,6 +15,11 @@ class MusicProvider(ABC):
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
         raise NotImplementedError 
 
-    @abstractmethod
+    def search_tracks(self, playlist_tracks: list, output_file_path:str='')->list: 
+        raise NotImplementedError
+
+    def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
+        raise NotImplementedError
+
     def retrieve_playlist(self, playlist_id, out_file_path='', test_threshold=None):
         raise NotImplementedError    
