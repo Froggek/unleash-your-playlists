@@ -1,7 +1,6 @@
 from math import floor
 import requests, os, yaml 
 import json 
-import helpers
 
 from MusicProvider import MusicProvider
 
@@ -13,6 +12,19 @@ class MusicProviderDeezer(MusicProvider):
 
         self._set_access_token(access_token) 
     
+
+    # TODO: might not be serializable in json  
+    def _is_provider_specific_response_ok(self, rep:requests.Response) -> tuple[bool, str]:
+        """Deezer-specific errors are detailed here: https://developers.deezer.com/api/errors"""
+
+        # A single boolean can be returned if the request succeeds 
+        if isinstance(rep.json(), dict) and 'error' in rep.json():
+            deezer_error = rep.json()['error'] 
+            return False, f'Code: {deezer_error["code"]} ({deezer_error["type"]}) - Message: {deezer_error["message"]}'
+        
+        return True, ''
+
+
 
     def __search_track(self, track_name: str, artist_names:str='', temp_out_file:str='')->tuple: 
         query_params = { 'access_token': self._get_access_token() }
@@ -106,7 +118,7 @@ class MusicProviderDeezer(MusicProvider):
         # TODO maxQueryString = 1024 characters 
         query_params['songs'] = ','.join(str(track) for track in tracks_set) 
         response = requests.post(f'https://api.deezer.com/playlist/{ playlist_id }/tracks', params=query_params)
-        helpers.check_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
+        self.check_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
 
 
     def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
@@ -125,7 +137,7 @@ class MusicProviderDeezer(MusicProvider):
 
         response = requests.get(f'https://api.deezer.com/playlist/{ playlist_id }', params=query_params)
         
-        helpers.check_response_2xx(response, f'Error while retrieving playlist Deezer # { playlist_id }')
+        self.check_response_2xx(response, f'Error while retrieving playlist Deezer # { playlist_id }')
         
         response_tracks = response.json()
             

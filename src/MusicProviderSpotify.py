@@ -6,8 +6,6 @@ import json
 from MusicProvider import MusicProvider
 
 class MusicProviderSpotify(MusicProvider): 
-    def __init__(self):
-        super().__init__()
 
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
         """Request a refreshed access token

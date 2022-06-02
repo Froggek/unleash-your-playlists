@@ -14,13 +14,13 @@ if __name__ == '__main__':
     TEMP_DIR_PATH = config['output']['temp_dir_path'].replace('$ROOT', PROJECT_ROOT_PATH)
 
 
-    spotify:MusicProviderSpotify = MusicProviderSpotify()
+    spotify:MusicProviderSpotify = MusicProviderSpotify('spotify.com')
     spotify_credentials = config['credentials']['spotify']
     # TODO: have this in ctor 
     spotify.set_access_token(client_id=spotify_credentials['app_id'], client_secret=spotify_credentials['app_secret']\
         , refresh_token=spotify_credentials['refresh_token'])
 
-    deezer:MusicProviderDeezer = MusicProviderDeezer()
+    deezer:MusicProviderDeezer = MusicProviderDeezer('deezer.com')
     deezer.set_access_token(access_token=config['credentials']['deezer']['access_token'])
 
     # TODO: check source service 
