@@ -5,10 +5,6 @@ import yaml
 from MusicProviderDeezer import MusicProviderDeezer
 from MusicProviderSpotify import MusicProviderSpotify
 
-# TODO: 
-# - Error management (HTTP codes) 
-
-
 if __name__ == '__main__':
     PROJECT_ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
     

@@ -36,8 +36,7 @@ class MusicProviderDeezer(MusicProvider):
                 f.write(response.text)
 
         # Handling codes != 2xx 
-        if not helpers.is_response_2xx(response, f'Error when searching for a Deezer track: { track_name } ({ artist_names })'): 
-            return 0, None 
+        helpers.check_response_2xx(response, f'Error when searching for a Deezer track: { track_name } ({ artist_names })')
         
         response_json = response.json() 
 
@@ -107,7 +106,7 @@ class MusicProviderDeezer(MusicProvider):
         # TODO maxQueryString = 1024 characters 
         query_params['songs'] = ','.join(str(track) for track in tracks_set) 
         response = requests.post(f'https://api.deezer.com/playlist/{ playlist_id }/tracks', params=query_params)
-        helpers.is_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
+        helpers.check_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
 
 
     def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
@@ -126,9 +125,8 @@ class MusicProviderDeezer(MusicProvider):
 
         response = requests.get(f'https://api.deezer.com/playlist/{ playlist_id }', params=query_params)
         
-        if not helpers.is_response_2xx(response, f'Error while retrieving playlist Deezer # { playlist_id }'): 
-            raise Exception(f'Error while retrieving playlist Deezer # { playlist_id }')
-
+        helpers.check_response_2xx(response, f'Error while retrieving playlist Deezer # { playlist_id }')
+        
         response_tracks = response.json()
             
         if not ('tracks' in response_tracks and 'data' in response_tracks['tracks'] and isinstance(response_tracks['tracks']['data'], list)):
