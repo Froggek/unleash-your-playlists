@@ -18,6 +18,61 @@ class MusicProviderDeezer(MusicProvider):
         return super().retrieve_playlist(playlist_id, out_file_path, test_threshold)    
         
 
+    def __search_track(self, track_name: str, artist_names:str='', temp_out_file:str='')->tuple: 
+        query_params = { 'access_token': self._get_access_token() }
+
+        # TODO: Sanity check 
+        # response = requests.get('https://api.deezer.com/user/me', params=query_params)
+        # print(response.json())
+
+        # Performing a Deezer "Advanced Search"
+        # https://developers.deezer.com/api/search 
+        # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
+        query_params['q'] = (f'artist:"{ artist_names }"' if artist_names else '') + f'track:"{ track_name }"'
+        # Hopefully retrieving the most relevant tracks first 
+        query_params['order'] = 'RANKING'
+
+        response = requests.get('https://api.deezer.com/search', params=query_params)
+
+        # Loging result 
+        if (temp_out_file): 
+            with open(temp_out_file, 'w') as f:
+                f.write(response.text)
+
+        # Handling codes != 2xx 
+        if not helpers.is_response_2xx(response, f'Error when searching for a Deezer track: { track_name } ({ artist_names })'): 
+            return 0, None 
+        
+        response_json = response.json() 
+
+        return response_json['total'], (response_json['data'][0]['id'] if response_json['data'] else None)
+
+
+    def search_tracks(self, playlist_tracks: list, output_file_path:str='')->list: 
+        deezer_tracks_ids = []
+        count:int = 0  
+
+        for item in playlist_tracks:
+            track = item['track']
+            track_name = track['name']
+            artists = ' '.join(artist['name'] for artist in track['artists'])
+            count += 1
+            print(f'#{ count }: { track_name } ({ artists })')
+
+            nb_hits, id = self.__search_track(track_name, artists)
+            if nb_hits > 0: 
+                deezer_tracks_ids.append(id)
+
+            # TODO: report, print what has been found, and compare 
+            print(f'Found { nb_hits } match(es) - Keeping #{ id }')
+
+        if (output_file_path): 
+            with open(output_file_path, 'w') as f: 
+                f.write(json.dumps(deezer_tracks_ids))
+
+        return deezer_tracks_ids
+        
+
     def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list):
         # TODO: option to previously clear the playlist 
         # TODO: or check what's already in the target playlist 
@@ -50,7 +105,7 @@ class MusicProviderDeezer(MusicProvider):
 
         return self.__add_tracks_to_playlist(playlist_id, tracks_ids)
 
-
+# TODO... 
 def get_access_token(): 
     """ This function is not ready yet... """
 
@@ -74,61 +129,7 @@ def get_access_token():
     # => Access token: xxx-xxx-xxx-xxx 
     # response = requests.get('https://connect.deezer.com/oauth/access_token.php', params=query_params) 
     # print(response.json())
-
-
-def search_tracks(access_token, playlist_tracks, output_file_path=''): 
-    deezer_tracks_ids = []
-    count:int = 0  
-
-    for item in playlist_tracks:
-        track = item['track']
-        track_name = track['name']
-        artists = ' '.join(artist['name'] for artist in track['artists'])
-        count += 1
-        print(f'#{count}: {track_name} ({artists})')
-
-        nb_hits, id = search_track(access_token, track_name, artists)
-        if nb_hits > 0: 
-            deezer_tracks_ids.append(id)
-
-        # TODO: report, print what has been found, and compare 
-        print(f'Found {nb_hits} match(es) - Keeping #{id}')
-
-    if (output_file_path): 
-        with open(output_file_path, 'w') as f: 
-            f.write(json.dumps(deezer_tracks_ids))
-
-    return deezer_tracks_ids
     
-def search_track(access_token, track_name, artist_names='', temp_out_file=''): 
-
-    query_params = { 'access_token': access_token }
-
-    # Sanity check - TODO 
-    # response = requests.get('https://api.deezer.com/user/me', params=query_params)
-    # print(response.json())
-
-    # Performing a Deezer "Advanced Search"
-    # https://developers.deezer.com/api/search 
-    # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
-    query_params['q'] = (f'artist:"{artist_names}"' if artist_names else '') + f'track:"{track_name}"'
-    # Hopefully retrieving the most relevant tracks first 
-    query_params['order'] = 'RANKING'
-
-    response = requests.get('https://api.deezer.com/search', params=query_params)
-
-    # Loging result 
-    if (temp_out_file): 
-        with open(temp_out_file, 'w') as f:
-            f.write(response.text)
-
-    # Handling codes != 2xx 
-    if not helpers.is_response_2xx(response, f'Error when searching for a Deezer track: {track_name} ({artist_names})'): 
-        return 0, None 
-    
-    response_json = response.json() 
-
-    return response_json['total'], (response_json['data'][0]['id'] if response_json['data'] else None)
 
 
 
