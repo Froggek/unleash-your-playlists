@@ -1,5 +1,7 @@
 from math import floor
+from urllib.request import Request
 import requests, os, yaml 
+from urllib.error import HTTPError
 import json 
 
 from MusicProvider import MusicProvider
@@ -13,7 +15,7 @@ class MusicProviderDeezer(MusicProvider):
         self._set_access_token(access_token) 
     
 
-    # TODO: might not be serializable in json  
+    # TODO: might not be serializable to json  
     def _is_provider_specific_response_ok(self, rep:requests.Response) -> tuple[bool, str]:
         """Deezer-specific errors are detailed here: https://developers.deezer.com/api/errors"""
 
@@ -25,35 +27,57 @@ class MusicProviderDeezer(MusicProvider):
         return True, ''
 
 
+    def _forge_and_send_request(self, endpoint: str, query_params: dict, custom_error_msg: str='', safe_error_codes: list=[])->requests.Response:
+        query_params['access_token'] = self._get_access_token()
+
+        response = requests.get(f'https://api.deezer.com/{ endpoint }', params=query_params)
+        
+        # Handling codes != 2xx 
+        self.check_response_2xx(response, custom_error_msg, safe_error_codes=safe_error_codes)
+
+        return response 
+
 
     def __search_track(self, track_name: str, artist_names:str='', temp_out_file:str='')->tuple: 
-        query_params = { 'access_token': self._get_access_token() }
-
-        # TODO: Sanity check 
-        # response = requests.get('https://api.deezer.com/user/me', params=query_params)
-        # print(response.json())
-
         # Performing a Deezer "Advanced Search"
         # https://developers.deezer.com/api/search 
-        # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
-        query_params['q'] = (f'artist:"{ artist_names }"' if artist_names else '') + f'track:"{ track_name }"'
-        # Hopefully retrieving the most relevant tracks first 
-        query_params['order'] = 'RANKING'
+        query_params = {
+            # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
+            'q': (f'artist:"{ artist_names }"' if artist_names else '') + f'track:"{ track_name }"', 
+            # Hopefully retrieving the most relevant tracks first 
+            'order': 'RANKING'
+        }
 
-        response = requests.get('https://api.deezer.com/search', params=query_params)
-
-        # Loging result 
-        if (temp_out_file): 
-            with open(temp_out_file, 'w') as f:
-                f.write(response.text)
-
-        # Handling codes != 2xx 
-        helpers.check_response_2xx(response, f'Error when searching for a Deezer track: { track_name } ({ artist_names })')
+        # With Deezer, when searching for a title, 
+        # a 403-error can arise... 
+        try: 
+            response = self._forge_and_send_request('search'\
+                , query_params, custom_error_msg=f'Error when searching for a Deezer track: { track_name } ({ artist_names })')
         
-        response_json = response.json() 
+            # Logging result 
+            if (temp_out_file): 
+                with open(temp_out_file, 'w') as f:
+                    f.write(response.text)
 
-        return response_json['total'], (response_json['data'][0]['id'] if response_json['data'] else None)
+            response_json = response.json() 
 
+            total = response_json['total'] 
+            first_track_id = (response_json['data'][0]['id'] if response_json['data'] else None)
+
+        except HTTPError as err: 
+            if err.status == 403:
+                # Logging error, but keeping it silent 
+                print('Got 403 error while searching for a track on Deezer...OK')
+                print(err)
+            else:
+                # Other errors make the request fail
+                raise err 
+        
+            total, first_track_id = 0, None
+
+        finally: 
+            return total, first_track_id
+        
 
     def search_tracks(self, playlist_tracks: list, output_file_path:str='')->list: 
         deezer_tracks_ids = []
@@ -66,7 +90,9 @@ class MusicProviderDeezer(MusicProvider):
             count += 1
             print(f'#{ count }: { track_name } ({ artists })')
 
-            nb_hits, id = self.__search_track(track_name, artists)
+            nb_hits, id = self.__search_track(track_name, artists) 
+
+
             if nb_hits > 0: 
                 deezer_tracks_ids.append(id)
 

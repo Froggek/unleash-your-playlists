@@ -30,7 +30,7 @@ if __name__ == '__main__':
         ) 
 
     # TODO 
-    if (False): 
+    if (True): 
         deezer_tracks_ids = deezer.search_tracks(playlist_tracks\
             , output_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
             )

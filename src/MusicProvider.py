@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from xml import dom
 import requests
 from urllib.parse import urlparse
+from urllib.error import HTTPError
 
 
 class MusicProvider(ABC):
@@ -21,11 +22,20 @@ class MusicProvider(ABC):
 
 
     # TODO: have proper logs 
-    def check_response_2xx(self, rep: requests.Response, custom_error_message:str='') -> None: 
-        is_ok = rep.status_code in range(200, 300)
+    def check_response_2xx(self, rep: requests.Response, custom_error_message:str='', safe_error_codes: list=[]) -> None: 
+        # There are error codes we might accept... 
+        is_ok = rep.status_code in safe_error_codes
+        
+        if is_ok:
+            #TODO: proper log 
+            print(f'Got a (silented) error { rep.status_code }...OK')
+        else:
+            is_ok = rep.status_code in range(200, 300)
+        
         std_error_msg = ''
 
         if not is_ok: 
+            #TODO: status_code might no longer be required 
             std_error_msg = f'Code: { rep.status_code } ({ rep.reason }) - Message: { rep.text }'
 
         else:
@@ -33,7 +43,7 @@ class MusicProvider(ABC):
 
         if not is_ok: 
             print(custom_error_message if custom_error_message else 'Error!')
-            raise Exception(std_error_msg)
+            raise HTTPError(url=rep.url, code=rep.status_code, msg=std_error_msg, hdrs=rep.headers, fp=None)
 
 
 
