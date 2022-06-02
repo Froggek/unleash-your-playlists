@@ -71,7 +71,6 @@ class MusicProviderDeezer(MusicProvider):
 
     def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list):
         # TODO: option to previously clear the playlist 
-        # TODO: or check what's already in the target playlist 
 
         query_params = { 'access_token': self._get_access_token() }
         # Thank you steinitzu 
@@ -83,7 +82,27 @@ class MusicProviderDeezer(MusicProvider):
         if tracks_duplicates: 
             print(f'The following track # have been duplicated from the source: ')
             for t in tracks_duplicates: 
-                print(f"# {t}")
+                print(f"\t# {t}")
+            
+         # We check what the target playlist already contains
+        target_playlist_track_ids = self.retrieve_playlist(playlist_id) 
+        tracks_already_in_target = set([t for t in tracks_set if t in target_playlist_track_ids])
+
+        if tracks_already_in_target:
+            print(f'The following track # were already in the target playlist: ')
+            for t in tracks_already_in_target:
+                print(f'\t# {t}')
+        
+        # Removing tracks already in target 
+        tracks_set = tracks_set - tracks_already_in_target
+
+        for t in tracks_set:
+            if t in target_playlist_track_ids:
+                tracks_set.remove(t)
+
+        if not tracks_set:
+            print('No track to add...END')
+            return
 
         # TODO maxQueryString = 1024 characters 
         query_params['songs'] = ','.join(str(track) for track in tracks_set) 
@@ -100,6 +119,27 @@ class MusicProviderDeezer(MusicProvider):
                 raise Exception('Either a list of tracks or a track file path are required')
 
         return self.__add_tracks_to_playlist(playlist_id, tracks_ids)
+
+
+    def retrieve_playlist(self, playlist_id, out_file_path='', test_threshold=None) -> list:
+        query_params = { 'access_token': self._get_access_token() }
+
+        response = requests.get(f'https://api.deezer.com/playlist/{ playlist_id }', params=query_params)
+        
+        if not helpers.is_response_2xx(response, f'Error while retrieving playlist Deezer # { playlist_id }'): 
+            raise Exception(f'Error while retrieving playlist Deezer # { playlist_id }')
+
+        response_tracks = response.json()
+            
+        if not ('tracks' in response_tracks and 'data' in response_tracks['tracks'] and isinstance(response_tracks['tracks']['data'], list)):
+            f'Error while retrieving playlist Deezer # { playlist_id }'
+        
+        response_tracks = response_tracks['tracks']['data']
+
+        return [item['id'] for item in response_tracks]
+
+
+
 
 # TODO... 
 def get_access_token(): 

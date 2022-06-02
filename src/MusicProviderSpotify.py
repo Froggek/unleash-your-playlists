@@ -1,5 +1,3 @@
-from abc import get_cache_token
-from typing import List
 import requests
 from requests.auth import HTTPBasicAuth
 from requests.models import CaseInsensitiveDict
