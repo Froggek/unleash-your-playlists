@@ -15,7 +15,7 @@ def is_response_2xx(rep: requests.Response, custom_error_message:str='') -> bool
 
     if not is_ok: 
         print(custom_error_message if custom_error_message else 'Error!')
-        print(std_error_msg)
+        raise Exception(std_error_msg)
 
     return is_ok
 
