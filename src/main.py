@@ -4,6 +4,7 @@ import yaml
 
 from MusicProviderDeezer import MusicProviderDeezer
 from MusicProviderSpotify import MusicProviderSpotify
+from SearchThreaded import SearchThreading
 
 if __name__ == '__main__':
     PROJECT_ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
@@ -31,14 +32,21 @@ if __name__ == '__main__':
 
     # TODO 
     if (True): 
-        deezer_tracks_ids = deezer.search_tracks(playlist_tracks\
-            , output_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
-            )
+        NB_MAX_THREADS = 4
+        threads = list()
+        for i in range(NB_MAX_THREADS):
+            threads.append(SearchThreading(deezer, playlist_tracks[i::NB_MAX_THREADS]))
+            threads[i].start()
+        
+
+        # deezer_tracks_ids = deezer.search_tracks(playlist_tracks\
+        #     , output_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
+        #     )
 
         # TODO: support empty lists 
-        if (deezer_tracks_ids): 
-            # TODO: check target service 
-            deezer.add_tracks_to_playlist(playlist_id=config['target']['playlist_id'], tracks_ids=deezer_tracks_ids)
+        # if (deezer_tracks_ids): 
+        #     # TODO: check target service 
+        #     deezer.add_tracks_to_playlist(playlist_id=config['target']['playlist_id'], tracks_ids=deezer_tracks_ids)
     else: 
         deezer.add_tracks_to_playlist(playlist_id=config['target']['playlist_id']\
             , tracks_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
