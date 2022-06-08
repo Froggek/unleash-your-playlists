@@ -31,4 +31,7 @@ Create a `data/config.yaml` file (based on `data/config.yaml.example`) which con
 - A **deezer** (OAuth 2) access token.  
 
 ### Play! 
-Simply execute `src/main.py` using **Python 3**. 
+Simply execute `src/main.py` using **Python 3** 
+
+## Credits 
+- [pydeezer SDK](https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py) from steinitzu - not used, but inspired from :-) 
