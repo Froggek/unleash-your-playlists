@@ -67,8 +67,7 @@ class MusicProviderDeezer(MusicProvider):
         except HTTPError as err: 
             if err.status == 403:
                 # Logging error, but keeping it silent 
-                print('Got 403 error while searching for a track on Deezer...OK')
-                print(err)
+                print(f'Got 403 error while searching for a track on Deezer...OK\n{err}')
             else:
                 # Other errors make the request fail
                 raise err 
@@ -88,7 +87,6 @@ class MusicProviderDeezer(MusicProvider):
             track_name = track['name']
             artists = ' '.join(artist['name'] for artist in track['artists'])
             count += 1
-            print(f'#{ count }: { track_name } ({ artists })')
 
             nb_hits, id = self.__search_track(track_name, artists) 
 
@@ -96,8 +94,11 @@ class MusicProviderDeezer(MusicProvider):
             if nb_hits > 0: 
                 deezer_tracks_ids.append(id)
 
-            # TODO: report, print what has been found, and compare 
-            print(f'Found { nb_hits } match(es) - Keeping #{ id }')
+            # TODO: report, print what has been found, and compare
+            # TODO: use locks?   
+            # Both expressions in a single "print" statement, 
+            # in case the function is parallelized  
+            print(f'#{ count }: { track_name } ({ artists })\n\tFound { nb_hits } match(es) - Keeping #{ id }')
 
         if (output_file_path): 
             with open(output_file_path, 'w') as f: 
