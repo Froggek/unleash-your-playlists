@@ -93,7 +93,8 @@ class MusicProviderDeezer(MusicProvider):
             threads.append(SearchThreading(self, playlist_tracks[i::nb_threads]))
             threads[i].start()
 
-        # Collecting teh results 
+        # Collecting the results 
+        # TODO: keep order 
         for i in range(nb_threads):
             threads[i].join()
             deezer_tracks_ids += threads[i].output_track_ids
@@ -113,7 +114,7 @@ class MusicProviderDeezer(MusicProvider):
         # The songs must be provided as a QUERY parameter (serialized array)  
 
         tracks_set = set([ t for t in tracks_ids])
-        tracks_duplicates = [ t for t in tracks_ids if tracks_ids.count(t) > 1 ]
+        tracks_duplicates = set([ t for t in tracks_ids if tracks_ids.count(t) > 1 ])
         if tracks_duplicates: 
             print(f'The following track # have been duplicated from the source: ')
             for t in tracks_duplicates: 
