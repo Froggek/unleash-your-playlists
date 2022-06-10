@@ -5,6 +5,7 @@ from urllib.error import HTTPError
 import json 
 
 from MusicProvider import MusicProvider
+from SearchThreaded import SearchThreading
 
 class MusicProviderDeezer(MusicProvider):
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
@@ -38,7 +39,7 @@ class MusicProviderDeezer(MusicProvider):
         return response 
 
 
-    def __search_track(self, track_name: str, artist_names:str='', temp_out_file:str='')->tuple: 
+    def search_track(self, track_name: str, artist_names:str='', output_file_path:str='')->tuple: 
         # Performing a Deezer "Advanced Search"
         # https://developers.deezer.com/api/search 
         query_params = {
@@ -55,8 +56,8 @@ class MusicProviderDeezer(MusicProvider):
                 , query_params, custom_error_msg=f'Error when searching for a Deezer track: { track_name } ({ artist_names })')
         
             # Logging result 
-            if (temp_out_file): 
-                with open(temp_out_file, 'w') as f:
+            if (output_file_path): 
+                with open(output_file_path, 'w') as f:
                     f.write(response.text)
 
             response_json = response.json() 
@@ -67,8 +68,7 @@ class MusicProviderDeezer(MusicProvider):
         except HTTPError as err: 
             if err.status == 403:
                 # Logging error, but keeping it silent 
-                print('Got 403 error while searching for a track on Deezer...OK')
-                print(err)
+                print(f'Got 403 error while searching for a track on Deezer...OK\n{err}')
             else:
                 # Other errors make the request fail
                 raise err 
@@ -79,32 +79,31 @@ class MusicProviderDeezer(MusicProvider):
             return total, first_track_id
         
 
-    def search_tracks(self, playlist_tracks: list, output_file_path:str='')->list: 
+    def search_tracks(self, playlist_tracks: list, output_file_path:str='', nb_threads=1)->list: 
+        if nb_threads < 1:
+            raise Exception('The number of threads must be at least 1')
+
         deezer_tracks_ids = []
-        count:int = 0  
 
-        for item in playlist_tracks:
-            track = item['track']
-            track_name = track['name']
-            artists = ' '.join(artist['name'] for artist in track['artists'])
-            count += 1
-            print(f'#{ count }: { track_name } ({ artists })')
+        # return deezer_tracks_ids
+        
+        threads = list()
+        # Launching the threads
+        for i in range(nb_threads):
+            threads.append(SearchThreading(self, playlist_tracks[i::nb_threads]))
+            threads[i].start()
 
-            nb_hits, id = self.__search_track(track_name, artists) 
-
-
-            if nb_hits > 0: 
-                deezer_tracks_ids.append(id)
-
-            # TODO: report, print what has been found, and compare 
-            print(f'Found { nb_hits } match(es) - Keeping #{ id }')
+        # Collecting the results 
+        # TODO: keep order 
+        for i in range(nb_threads):
+            threads[i].join()
+            deezer_tracks_ids += threads[i].output_track_ids
 
         if (output_file_path): 
             with open(output_file_path, 'w') as f: 
                 f.write(json.dumps(deezer_tracks_ids))
 
         return deezer_tracks_ids
-        
 
     def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list):
         # TODO: option to previously clear the playlist 
@@ -115,7 +114,7 @@ class MusicProviderDeezer(MusicProvider):
         # The songs must be provided as a QUERY parameter (serialized array)  
 
         tracks_set = set([ t for t in tracks_ids])
-        tracks_duplicates = [ t for t in tracks_ids if tracks_ids.count(t) > 1 ]
+        tracks_duplicates = set([ t for t in tracks_ids if tracks_ids.count(t) > 1 ])
         if tracks_duplicates: 
             print(f'The following track # have been duplicated from the source: ')
             for t in tracks_duplicates: 
