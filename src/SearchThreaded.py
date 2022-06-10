@@ -5,11 +5,10 @@ from MusicProvider import MusicProvider
 
 #TODO: caution - this is Deezer-specific 
 class SearchThreading(threading.Thread):
-    def __init__(self, music_provider: MusicProvider, playlist_tracks: list, output_file_path:str=''):
+    def __init__(self, music_provider: MusicProvider, playlist_tracks: list):
         threading.Thread.__init__(self)
         self.__music_provider = music_provider
         self.__playlist_tracks = playlist_tracks
-        self.__output_file_path = output_file_path
         self.__output_track_ids = []
 
     @property
@@ -19,7 +18,7 @@ class SearchThreading(threading.Thread):
     @output_track_ids.setter
     def output_track_ids(self, track_ids): 
         raise NotImplementedError
-        
+
 
     def run(self):
         count:int = 0  
@@ -41,10 +40,6 @@ class SearchThreading(threading.Thread):
             # Both expressions in a single "print" statement, 
             # in case the function is parallelized  
             print(f'#{ count }: { track_name } ({ artists })\n\tFound { nb_hits } match(es) - Keeping #{ id }')
-
-        if (self.__output_file_path): 
-            with open(self.__output_file_path, 'w') as f: 
-                f.write(json.dumps(self.output_track_ids))
 
         # The run method returns nothing 
 

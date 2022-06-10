@@ -83,38 +83,26 @@ class MusicProviderDeezer(MusicProvider):
         if nb_threads < 1:
             raise Exception('The number of threads must be at least 1')
 
-        # deezer_tracks_ids = []
-        # count:int = 0  
-
-        # for item in playlist_tracks:
-        #     track = item['track']
-        #     track_name = track['name']
-        #     artists = ' '.join(artist['name'] for artist in track['artists'])
-        #     count += 1
-
-        #     nb_hits, id = self.__search_track(track_name, artists) 
-
-
-        #     if nb_hits > 0: 
-        #         deezer_tracks_ids.append(id)
-
-        #     # TODO: report, print what has been found, and compare
-        #     # TODO: use locks?   
-        #     # Both expressions in a single "print" statement, 
-        #     # in case the function is parallelized  
-        #     print(f'#{ count }: { track_name } ({ artists })\n\tFound { nb_hits } match(es) - Keeping #{ id }')
-
-        # if (output_file_path): 
-        #     with open(output_file_path, 'w') as f: 
-        #         f.write(json.dumps(deezer_tracks_ids))
+        deezer_tracks_ids = []
 
         # return deezer_tracks_ids
         
         threads = list()
+        # Launching the threads
         for i in range(nb_threads):
-            threads.append(SearchThreading(self, playlist_tracks[i::nb_threads], output_file_path))
+            threads.append(SearchThreading(self, playlist_tracks[i::nb_threads]))
             threads[i].start()
 
+        # Collecting teh results 
+        for i in range(nb_threads):
+            threads[i].join()
+            deezer_tracks_ids += threads[i].output_track_ids
+
+        if (output_file_path): 
+            with open(output_file_path, 'w') as f: 
+                f.write(json.dumps(deezer_tracks_ids))
+
+        return deezer_tracks_ids
 
     def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list):
         # TODO: option to previously clear the playlist 

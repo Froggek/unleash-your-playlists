@@ -34,13 +34,8 @@ if __name__ == '__main__':
     if (True): 
         deezer_tracks_ids = deezer.search_tracks(playlist_tracks\
             , output_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
-            , nb_threads=4
+            , nb_threads=8
         )
-
-        # TODO: support empty lists 
-        # if (deezer_tracks_ids): 
-        #     # TODO: check target service 
-        #     deezer.add_tracks_to_playlist(playlist_id=config['target']['playlist_id'], tracks_ids=deezer_tracks_ids)
     else: 
         deezer.add_tracks_to_playlist(playlist_id=config['target']['playlist_id']\
             , tracks_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
