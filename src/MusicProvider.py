@@ -58,5 +58,8 @@ class MusicProvider(ABC):
     def search_tracks(self, playlist_tracks: list, output_file_path:str='')->list: 
         raise NotImplementedError
 
+    def search_track(self, track_name: str, artist_names:str='', output_file_path:str='')->tuple:
+        raise NotImplementedError 
+
     def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
         raise NotImplementedError

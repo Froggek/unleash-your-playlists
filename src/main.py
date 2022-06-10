@@ -32,16 +32,10 @@ if __name__ == '__main__':
 
     # TODO 
     if (True): 
-        NB_MAX_THREADS = 4
-        threads = list()
-        for i in range(NB_MAX_THREADS):
-            threads.append(SearchThreading(deezer, playlist_tracks[i::NB_MAX_THREADS]))
-            threads[i].start()
-        
-
-        # deezer_tracks_ids = deezer.search_tracks(playlist_tracks\
-        #     , output_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
-        #     )
+        deezer_tracks_ids = deezer.search_tracks(playlist_tracks\
+            , output_file_path=os.path.join(TEMP_DIR_PATH, 'deezer_tracks_to_add.tmp.json')\
+            , nb_threads=4
+        )
 
         # TODO: support empty lists 
         # if (deezer_tracks_ids): 
