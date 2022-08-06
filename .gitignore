@@ -2,14 +2,20 @@
 *.code-workspace
 *.vscode
 
-# Config
+# config
 */**/config.yaml
 
-# Temp data
+# temp data
 **/*.tmp.json
 
-# Test files / sandboxes
+# test files / sandboxes
 **/sandbox.py
+
+# Python venv 
+Scripts/
+pyvenv.cfg
+
+### Defaults ###
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
