@@ -4,7 +4,7 @@
 
 # config
 */**/config.yaml
-*/**/config-youtube.json
+*/**/config-*.json
 
 # temp data
 **/*.tmp.json
