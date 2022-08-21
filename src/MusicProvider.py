@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from xml import dom
 import requests
 from urllib.parse import urlparse
 from urllib.error import HTTPError
