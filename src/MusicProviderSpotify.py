@@ -10,11 +10,14 @@ class MusicProviderSpotify(MusicProvider):
         super().__init__(domain_name, config_credentials)
 
         if all(k in config_credentials for k in ('app_id', 'app_secret', 'refresh_token')): 
+            # TODO: log refresh token used 
+            # TODO: check scopes? 
             self.set_access_token(client_id=config_credentials['app_id']\
                 , client_secret=config_credentials['app_secret']\
                 , refresh_token=config_credentials['refresh_token'])
 
         else: 
+            #TODO: log using OAuth flow 
             raise Exception('Refresh token not available for Spotify provider')
 
 
