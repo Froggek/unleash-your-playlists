@@ -33,5 +33,12 @@ Create a `data/config.yaml` file (based on `data/config.yaml.example`) which con
 ### Play! 
 Simply execute `src/main.py` using **Python 3** 
 
+## Technical Considerations
+### Authorization
+The application needs to access the music provider API _on behalf of_ the user (to read from the source playlist, and write to the target one). 
+For each music provider: 
+- If a valid token (access or refresh) is available from the config file, it will be used
+- Otherwise, an [OAuth2 flow](https://www.rfc-editor.org/rfc/rfc6749) if triggered. In this case, the user has to grant the application access to the music provider (with the correct scopes).    
+
 ## Credits 
 - [pydeezer SDK](https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py) from steinitzu - not used, but inspired from :-) 
