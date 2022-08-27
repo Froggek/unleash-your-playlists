@@ -6,6 +6,17 @@ import json
 from MusicProvider import MusicProvider
 
 class MusicProviderSpotify(MusicProvider): 
+    def __init__(self, domain_name, config_credentials):
+        super().__init__(domain_name, config_credentials)
+
+        if all(k in config_credentials for k in ('app_id', 'app_secret', 'refresh_token')): 
+            self.set_access_token(client_id=config_credentials['app_id']\
+                , client_secret=config_credentials['app_secret']\
+                , refresh_token=config_credentials['refresh_token'])
+
+        else: 
+            raise Exception('Refresh token not available for Spotify provider')
+
 
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
         """Request a refreshed access token
@@ -20,6 +31,8 @@ class MusicProviderSpotify(MusicProvider):
         body_params = { 'grant_type': 'refresh_token', 'refresh_token': refresh_token }
         response = requests.post('https://accounts.spotify.com/api/token', auth=basic_auth, data=body_params)
         
+
+        # TODO check scopes 
         self._set_access_token(response.json()['access_token'])
     
 

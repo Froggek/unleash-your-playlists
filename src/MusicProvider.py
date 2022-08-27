@@ -5,7 +5,7 @@ from urllib.error import HTTPError
 
 
 class MusicProvider(ABC):
-    def __init__(self, domain_name): 
+    def __init__(self, domain_name, config_credentials=None): 
         self.__access_token:str = ''
         self.__DOMAIN_NAME:str = domain_name
 
