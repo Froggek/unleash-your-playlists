@@ -143,6 +143,7 @@ class MusicProviderDeezer(MusicProvider):
         # TODO maxQueryString = 1024 characters 
         query_params['songs'] = ','.join(str(track) for track in tracks_set) 
         response = requests.post(f'https://api.deezer.com/playlist/{ playlist_id }/tracks', params=query_params)
+        # TODO: log the tracks which have been added 
         self.check_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
 
 
