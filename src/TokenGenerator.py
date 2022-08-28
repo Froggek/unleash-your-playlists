@@ -26,6 +26,8 @@ class TokenGenerator:
         match provider: 
             case MusicProviderName.DEEZER: 
                 oauth_config['installed']['scopes'] = ['basic_access', 'email']
+                oauth_config['installed']['auth_uri'] = 'https://connect.deezer.com/oauth/auth.php'
+                oauth_config['installed']['token_uri'] = 'https://connect.deezer.com/oauth/access_token.php'
             case MusicProviderName.SPOTIFY: 
                 oauth_config['installed']['scopes'] = ['user-read-private', 'user-read-email']
                 oauth_config['installed']['auth_uri'] = 'https://accounts.spotify.com/authorize'

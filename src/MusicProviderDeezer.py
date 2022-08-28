@@ -3,7 +3,6 @@ from urllib.request import Request
 import requests, os, yaml 
 from urllib.error import HTTPError
 import json 
-
 from MusicProvider import MusicProvider, MusicProviderName
 from SearchThreaded import SearchThreading
 
@@ -11,6 +10,13 @@ class MusicProviderDeezer(MusicProvider):
     def __init__(self, config_credentials=None):
         super().__init__(MusicProviderName.DEEZER, config_credentials)
     
+    def _retrieve_access_token(self, config_credentials) -> bool:
+        if 'access_token' in config_credentials: 
+            self.set_access_token(config_credentials['access_token'])
+            return True
+        
+        return False 
+
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
         if not access_token:
             raise Exception('Access token is required')

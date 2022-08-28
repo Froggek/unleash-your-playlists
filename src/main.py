@@ -15,16 +15,19 @@ if __name__ == '__main__':
 
     TEMP_DIR_PATH = config['output']['temp_dir_path'].replace('$ROOT', PROJECT_ROOT_PATH)
 
-
+    ## Spotify 
     if ('credentials' not in config) or ('spotify' not in config['credentials']):
             raise Exception('The credentials are not available for the provider "Spotify" in the configuration file')
 
     spotify_credentials = config['credentials']['spotify']
     spotify:MusicProviderSpotify = MusicProviderSpotify(spotify_credentials)
     
+    ## Deezer
+    if ('credentials' not in config) or ('deezer' not in config['credentials']):
+            raise Exception('The credentials are not available for the provider "Deezer" in the configuration file')
 
-    deezer:MusicProviderDeezer = MusicProviderDeezer()
-    deezer.set_access_token(access_token=config['credentials']['deezer']['access_token'])
+    deezer_credentials = config['credentials']['deezer']
+    deezer:MusicProviderDeezer = MusicProviderDeezer(deezer_credentials)
 
     # TODO: check source service 
     playlist_tracks = spotify.retrieve_playlist(playlist_id=config['source']['playlist_id']\

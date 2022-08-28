@@ -41,7 +41,7 @@ class MusicProvider(ABC):
     def __generate_access_token(self, config_credentials)->None:
         if all(k in config_credentials for k in ('app_id', 'app_secret')): 
             #TODO: log using OAuth flow 
-            access_token, refresh_token = TokenGenerator.execute_token_retrieval_flow(MusicProviderName.SPOTIFY \
+            access_token, refresh_token = TokenGenerator.execute_token_retrieval_flow(self.PROVIDER_NAME \
                 , client_id=config_credentials['app_id'], client_secret=config_credentials['app_secret'])
             self.set_access_token(client_id=config_credentials['app_id'] \
                 , client_secret=config_credentials['app_secret'] \
