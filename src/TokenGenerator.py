@@ -51,14 +51,15 @@ class TokenGenerator:
         #     config_file_path,
         #     scopes
         # )
+        LOCAL_SERVER_PORT = '808' + str(provider.value)
 
         # Reproducing the flow.run_local_server() method 
         wsgi_app = _RedirectWSGIApp("All right - 200 OK")
         local_server = wsgiref.simple_server.make_server(
-            'localhost', 8080, app=wsgi_app, handler_class=_WSGIRequestHandler
+            'localhost', int(LOCAL_SERVER_PORT), app=wsgi_app, handler_class=_WSGIRequestHandler
         )
 
-        flow.redirect_uri = 'http://localhost:8080/'
+        flow.redirect_uri = f'http://localhost:{LOCAL_SERVER_PORT}/'
         auth_url, _ = flow.authorization_url()
 
         webbrowser.open(auth_url, new=1, autoraise=True)
