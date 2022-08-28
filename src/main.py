@@ -2,6 +2,7 @@ from array import array
 import os
 import yaml 
 
+from MusicProvider import MusicProviderName
 from MusicProviderDeezer import MusicProviderDeezer
 from MusicProviderSpotify import MusicProviderSpotify
 from SearchThreaded import SearchThreading
@@ -19,9 +20,10 @@ if __name__ == '__main__':
             raise Exception('The credentials are not available for the provider "Spotify" in the configuration file')
 
     spotify_credentials = config['credentials']['spotify']
-    spotify:MusicProviderSpotify = MusicProviderSpotify('spotify.com', spotify_credentials)
+    spotify:MusicProviderSpotify = MusicProviderSpotify(spotify_credentials)
     
-    deezer:MusicProviderDeezer = MusicProviderDeezer('deezer.com')
+
+    deezer:MusicProviderDeezer = MusicProviderDeezer()
     deezer.set_access_token(access_token=config['credentials']['deezer']['access_token'])
 
     # TODO: check source service 

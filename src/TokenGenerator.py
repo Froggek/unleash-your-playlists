@@ -1,46 +1,54 @@
-from enum import Enum 
-import os 
 from google_auth_oauthlib.flow import _RedirectWSGIApp, _WSGIRequestHandler, InstalledAppFlow 
 import wsgiref.simple_server 
 import webbrowser
-
-
-class MusicProviderName(Enum): 
-    DEEZER = 0
-    SPOTIFY = 1
-    YOUTUBE = 2
+from MusicProviderName import MusicProviderName
 
 
 class TokenGenerator:
 
-    @staticmethod
-    def __retrieve_config(provider):
+    @classmethod
+    def __retrieve_config(cls, provider, client_id, client_secret):
         # TODO: change the strategy 
-        PROJECT_ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
+        # PROJECT_ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
+        # config_file_path = os.path.join(PROJECT_ROOT_PATH, 'data', f'config-{provider.name.lower()}.json')
+
+        oauth_config = {
+            'installed': {
+                'client_id': client_id,
+                'client_secret': client_secret,
+                # TODO?  
+                # 'redirect_uris': ['http://localhost', 'urn:ietf:wg:oauth:2.0:oob'],
+                # 'auth_uri': '', 
+                # 'token_uri': ''
+            }
+        }
 
         match provider: 
             case MusicProviderName.DEEZER: 
-                config_file_path = os.path.join(PROJECT_ROOT_PATH, 'data', 'config-deezer.json')
-                scopes = ['basic_access', 'email']
+                oauth_config['installed']['scopes'] = ['basic_access', 'email']
             case MusicProviderName.SPOTIFY: 
-                config_file_path = os.path.join(PROJECT_ROOT_PATH, 'data', 'config-spotify.json')
-                scopes = ['user-read-private', 'user-read-email']
+                oauth_config['installed']['scopes'] = ['user-read-private', 'user-read-email']
+                oauth_config['installed']['auth_uri'] = 'https://accounts.spotify.com/authorize'
+                oauth_config['installed']['token_uri'] = 'https://accounts.spotify.com/api/token'
             case MusicProviderName.YOUTUBE:
-                config_file_path = os.path.join(PROJECT_ROOT_PATH, 'data', 'config-youtube.json')
-                scopes = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive']
+                oauth_config['installed']['scopes'] = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive']
             case _:
                 raise Exception('Unknown music provider')
         
-        return config_file_path, scopes
+        return oauth_config
 
-    @staticmethod
-    def execute_token_retrieval_flow(provider):
-        config_file_path, scopes = TokenGenerator.__retrieve_config(provider)
+    @classmethod
+    def execute_token_retrieval_flow(cls, provider, client_id, client_secret, ):
+        oauth_config = cls.__retrieve_config(provider, client_id, client_secret)
 
-        flow = InstalledAppFlow.from_client_secrets_file(
-            config_file_path,
-            scopes
-        )
+        flow = InstalledAppFlow.from_client_config(oauth_config, oauth_config['installed']['scopes'] \
+            #, **kwargs
+            )
+
+        # flow = InstalledAppFlow.from_client_secrets_file(
+        #     config_file_path,
+        #     scopes
+        # )
 
         # Reproducing the flow.run_local_server() method 
         wsgi_app = _RedirectWSGIApp("All right - 200 OK")
@@ -72,7 +80,7 @@ class TokenGenerator:
             # TODO: log 
             # logging.getLogger().debug(f'Got token {token_request["access_token"]} (lifetime={token_request["expires_at"]})')
 
-            credz = flow.credentials
+            # credz = flow.credentials
 
             # TODO: log 
             # logging.getLogger().debug(f'Credentials: {credz.to_json()}')
@@ -80,3 +88,4 @@ class TokenGenerator:
         finally: 
             local_server.server_close()
 
+        return flow.credentials.token, flow.credentials.refresh_token

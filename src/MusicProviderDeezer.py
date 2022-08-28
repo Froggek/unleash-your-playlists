@@ -4,12 +4,14 @@ import requests, os, yaml
 from urllib.error import HTTPError
 import json 
 
-from MusicProvider import MusicProvider
+from MusicProvider import MusicProvider, MusicProviderName
 from SearchThreaded import SearchThreading
 
 class MusicProviderDeezer(MusicProvider):
+    def __init__(self, config_credentials=None):
+        super().__init__(MusicProviderName.DEEZER, config_credentials)
+    
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
-        # TODO
         if not access_token:
             raise Exception('Access token is required')
 

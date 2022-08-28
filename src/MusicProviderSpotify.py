@@ -2,42 +2,45 @@ import requests
 from requests.auth import HTTPBasicAuth
 from requests.models import CaseInsensitiveDict
 import json
-
+from MusicProviderName import MusicProviderName
 from MusicProvider import MusicProvider
 
 class MusicProviderSpotify(MusicProvider): 
-    def __init__(self, domain_name, config_credentials):
-        super().__init__(domain_name, config_credentials)
+    def __init__(self, config_credentials=None):
+        super().__init__(MusicProviderName.SPOTIFY, config_credentials)
+        
 
+    def _retrieve_access_token(self, config_credentials) -> bool:
         if all(k in config_credentials for k in ('app_id', 'app_secret', 'refresh_token')): 
             # TODO: log refresh token used 
             # TODO: check scopes? 
             self.set_access_token(client_id=config_credentials['app_id']\
                 , client_secret=config_credentials['app_secret']\
                 , refresh_token=config_credentials['refresh_token'])
-
-        else: 
-            #TODO: log using OAuth flow 
-            raise Exception('Refresh token not available for Spotify provider')
+            return True 
+        
+        return False
 
 
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
-        """Request a refreshed access token
+        """If provided, set an access token. 
+        Otherwise, request one from the provided refresh token.  
         See official doc: https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-a-refreshed-access-token
         """
-
-        # TODO 
-        if not refresh_token:
-            raise Exception('Refresh token is required')
-
-        basic_auth = HTTPBasicAuth(client_id, client_secret) 
-        body_params = { 'grant_type': 'refresh_token', 'refresh_token': refresh_token }
-        response = requests.post('https://accounts.spotify.com/api/token', auth=basic_auth, data=body_params)
+        if access_token: 
+            self._set_access_token(access_token)
         
+        else: # requests a new fresh access token  
+            if not refresh_token:
+                raise Exception('Refresh token is required')
 
-        # TODO check scopes 
-        self._set_access_token(response.json()['access_token'])
-    
+            basic_auth = HTTPBasicAuth(client_id, client_secret) 
+            body_params = { 'grant_type': 'refresh_token', 'refresh_token': refresh_token }
+            response = requests.post('https://accounts.spotify.com/api/token', auth=basic_auth, data=body_params)
+            # TODO: check response code 
+            # TODO check scopes 
+            self._set_access_token(response.json()['access_token'])
+        
 
     def retrieve_playlist(self, playlist_id, out_file_path='', test_threshold=None)->list:
         # Since Spotify response is paginated, we need to provide an offset + a limit 
@@ -54,8 +57,8 @@ class MusicProviderSpotify(MusicProvider):
 
         while other_tracks_to_retrieve: 
             query_params['offset'] = offset 
-            response = requests.get(query_path, params=query_params, headers=request_headers)
-            # TODO: check status code
+            response = requests.get(query_path, params=query_params, headers=request_headers)            
+            self.check_response_2xx(response, 'Error while retrieving the playlist') 
 
             tracks += response.json()['items']
             offset += PAGE_SIZE
