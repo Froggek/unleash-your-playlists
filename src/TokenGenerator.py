@@ -40,7 +40,7 @@ class TokenGenerator:
         return oauth_config
 
     @classmethod
-    def execute_token_retrieval_flow(cls, provider, client_id, client_secret, ):
+    def execute_token_retrieval_flow(cls, provider, client_id, client_secret):
         oauth_config = cls.__retrieve_config(provider, client_id, client_secret)
 
         flow = InstalledAppFlow.from_client_config(oauth_config, oauth_config['installed']['scopes'] \

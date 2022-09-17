@@ -1,31 +1,23 @@
-from array import array
 import os
-import yaml 
+import FileHelpers 
 
 from MusicProvider import MusicProviderName
 from MusicProviderDeezer import MusicProviderDeezer
 from MusicProviderSpotify import MusicProviderSpotify
 from SearchThreaded import SearchThreading
 
-if __name__ == '__main__':
-    PROJECT_ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
+
+if __name__ == '__main__':    
+    config, TEMP_DIR_PATH = FileHelpers.load_config_from_file()
+
+    FileHelpers.check_key(config, ['source', 'playlist_id'])
+    FileHelpers.check_key(config, ['target', 'playlist_id'])
+    FileHelpers.check_key(config, ['credentials', 'spotify'])
+    FileHelpers.check_key(config, ['credentials', 'deezer'])
     
-    with open(os.path.join(PROJECT_ROOT_PATH, 'data', 'config.yaml'), 'r') as config_file: 
-        config = yaml.load(config_file, Loader=yaml.FullLoader) 
-
-    TEMP_DIR_PATH = config['output']['temp_dir_path'].replace('$ROOT', PROJECT_ROOT_PATH)
-
-    ## Spotify 
-    if ('credentials' not in config) or ('spotify' not in config['credentials']):
-            raise Exception('The credentials are not available for the provider "Spotify" in the configuration file')
-
     spotify_credentials = config['credentials']['spotify']
     spotify:MusicProviderSpotify = MusicProviderSpotify(spotify_credentials)
     
-    ## Deezer
-    if ('credentials' not in config) or ('deezer' not in config['credentials']):
-            raise Exception('The credentials are not available for the provider "Deezer" in the configuration file')
-
     deezer_credentials = config['credentials']['deezer']
     deezer:MusicProviderDeezer = MusicProviderDeezer(deezer_credentials)
 
