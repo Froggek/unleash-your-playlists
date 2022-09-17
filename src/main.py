@@ -1,9 +1,9 @@
 import os
 import FileHelpers 
 
-from MusicProvider import MusicProviderName
 from MusicProviderDeezer import MusicProviderDeezer
 from MusicProviderSpotify import MusicProviderSpotify
+from MusicProviderYouTube import MusicProviderYouTube
 from SearchThreaded import SearchThreading
 
 
@@ -14,18 +14,22 @@ if __name__ == '__main__':
     FileHelpers.check_key(config, ['target', 'playlist_id'])
     FileHelpers.check_key(config, ['credentials', 'spotify'])
     FileHelpers.check_key(config, ['credentials', 'deezer'])
+    FileHelpers.check_key(config, ['credentials', 'youtube'])
     
-    spotify_credentials = config['credentials']['spotify']
-    spotify:MusicProviderSpotify = MusicProviderSpotify(spotify_credentials)
-    
-    deezer_credentials = config['credentials']['deezer']
-    deezer:MusicProviderDeezer = MusicProviderDeezer(deezer_credentials)
+    spotify:MusicProviderSpotify = MusicProviderSpotify(config['credentials']['spotify'])
+    deezer:MusicProviderDeezer = MusicProviderDeezer(config['credentials']['deezer'])
+    youtube:MusicProviderYouTube = MusicProviderYouTube(config['credentials']['youtube'])
 
     # TODO: check source service 
-    playlist_tracks = spotify.retrieve_playlist(playlist_id=config['source']['playlist_id']\
+    # playlist_tracks = spotify.retrieve_playlist(playlist_id=config['source']['playlist_id']\
+    #    , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
+    #    # , test_threshold=100\
+    #    ) 
+    playlist_tracks = youtube.retrieve_playlist(playlist_id=config['source']['playlist_id']\
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
         # , test_threshold=100\
         ) 
+
 
     # TODO 
     deezer_tracks_ids = deezer.search_tracks(playlist_tracks\

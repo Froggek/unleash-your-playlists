@@ -34,6 +34,8 @@ class TokenGenerator:
                 oauth_config['installed']['token_uri'] = 'https://accounts.spotify.com/api/token'
             case MusicProviderName.YOUTUBE:
                 oauth_config['installed']['scopes'] = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive']
+                oauth_config['installed']['auth_uri'] = 'https://accounts.google.com/o/oauth2/v2/auth'
+                oauth_config['installed']['token_uri'] = 'https://accounts.google.com/o/oauth2/token'
             case _:
                 raise Exception('Unknown music provider')
         
