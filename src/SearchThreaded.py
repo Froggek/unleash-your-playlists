@@ -1,7 +1,8 @@
 import threading
-import json 
+from xml.dom import NotFoundErr
 
 from MusicProvider import MusicProvider
+import FileHelpers
 
 #TODO: caution - this is Deezer-specific 
 class SearchThreading(threading.Thread):
@@ -24,18 +25,20 @@ class SearchThreading(threading.Thread):
         count:int = 0  
 
         for item in self.__playlist_tracks:
-            #TODO track = item['track']
-            # TODO track_name = track['name']
-            track = item['name']
-            track_name = item['name']
-            if 'artists' in track: 
-                artists = ' '.join(artist['name'] for artist in track['artists'])
-            else:
-                artists = None
+            track = FileHelpers.check_key_and_return_value(item, 'track')
+
+            if 'raw' in track:
+                nb_hits, id = self.__music_provider.search_track(raw_query=track['raw'])
+            
+            elif 'name' in track: 
+                nb_hits, id = self.__music_provider.search_track(track_name=track['name'], 
+                                artist_names=(' '.join(artist['name'] for artist in track['artists'])) if 'artists' in track 
+                                                    else None) 
+            
+            else: 
+                raise NotFoundErr('Either a raw query or a track\'s name is required to perform a search') 
+
             count += 1
-
-            nb_hits, id = self.__music_provider.search_track(track_name, artists) 
-
 
             if nb_hits > 0: 
                 self.output_track_ids.append(id)
@@ -44,7 +47,7 @@ class SearchThreading(threading.Thread):
             # TODO: use locks?   
             # Both expressions in a single "print" statement, 
             # in case the function is parallelized  
-            print(f'#{ count }: { track_name } ({ artists })\n\tFound { nb_hits } match(es) - Keeping #{ id }')
+            print(f'#{ count }: { track } \n\tFound { nb_hits } match(es) - Keeping #{ id }')
 
         # The run method returns nothing 
 

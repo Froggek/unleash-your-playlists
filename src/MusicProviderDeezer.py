@@ -1,3 +1,4 @@
+from xml.dom import NotFoundErr
 import requests, os, yaml 
 from urllib.error import HTTPError
 import json 
@@ -37,16 +38,22 @@ class MusicProviderDeezer(MusicProvider):
 
         return response 
 
-
-    def search_track(self, track_name: str, artist_names:str='', output_file_path:str='')->tuple: 
+    def search_track(self, track_name: str = '', artist_names: str = '', raw_query: str = '', output_file_path: str = '') -> tuple:
         # Performing a Deezer "Advanced Search"
         # https://developers.deezer.com/api/search 
         query_params = {
-            # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
-            'q': (f'artist:"{ artist_names }"' if artist_names else '') + f'track:"{ track_name }"', 
             # Hopefully retrieving the most relevant tracks first 
             'order': 'RANKING'
         }
+
+        if raw_query: # 'raw' fashion 
+            # query_params['q'] = 'Flo Rida - Right Round (feat. Ke$ha) [US Version]'
+            query_params['q'] = raw_query
+        elif track_name: # structured ('name'/'artists') 
+            # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
+            query_params['q'] = (f'artist:"{ artist_names }"' if artist_names else '') + f'track:"{ track_name }"'
+        else:
+            raise NotFoundErr('Either a raw query of a track\'s name is required to perform a search')
 
         # With Deezer, when searching for a title, 
         # a 403-error can arise... 

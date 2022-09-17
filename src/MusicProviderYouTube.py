@@ -1,7 +1,8 @@
 import requests
 from requests.structures import CaseInsensitiveDict
-import FileHelpers 
+import re 
 
+import FileHelpers 
 from MusicProvider import MusicProvider
 from MusicProviderName import MusicProviderName
 
@@ -52,9 +53,28 @@ class MusicProviderYouTube(MusicProvider):
         tracks = list()
 
         for item in response_items:
-            tracks.append({ 
-                'name': FileHelpers.check_key_and_return_value(item, ['snippet', 'title'])
-                })
+            # Heuristic: seems like removing the '(Official Music Video)' from the title helps the subsequent search 
+            # Heuristic: seems like, with YouTube as the source, we achieve better results while performing a "raw" query, 
+            #               instead of looking for a track's name and an artist   
+            # tracks.append({ 
+            #     'track': {
+            #         'name': re.sub('\(?official +((music) +)?video\)?', '', 
+            #                     FileHelpers.check_key_and_return_value(item, ['snippet', 'title']), 
+            #                     flags=re.IGNORECASE), 
+            #         # Heuristic: seems like videoOwnerChannelTitle contains an artist's name 
+            #         # Heuristic: seems loke removing the '(Official Music Video)' from the title helps the subsequent search 
+            #         'artists': [ 
+            #                 { 'name': item['snippet']['videoOwnerChannelTitle'], } 
+            #             ]
+            #         }
+            #     })
+            tracks.append({
+                'track': {
+                    'raw': re.sub('\(?official +((music) +)?video\)?', '', 
+                                FileHelpers.check_key_and_return_value(item, ['snippet', 'title']), 
+                                flags=re.IGNORECASE)
+                }
+            })
 
         print(tracks)
         return tracks
