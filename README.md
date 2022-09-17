@@ -15,7 +15,7 @@ The first PoC attempts to do so from **[Spotify](https://www.spotify.com/)** to 
 Ultimately, we want to: 
 
 - Do it the other way other around
-- Integrate other music providers 
+- Integrate other music providers ([Deezer](https://www.youtube.com/) is a good candidate)
 - Ideally, be music provider-agnostic (?) 
 
 ## How to use it?
