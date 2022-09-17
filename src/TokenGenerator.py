@@ -33,7 +33,10 @@ class TokenGenerator:
                 oauth_config['installed']['auth_uri'] = 'https://accounts.spotify.com/authorize'
                 oauth_config['installed']['token_uri'] = 'https://accounts.spotify.com/api/token'
             case MusicProviderName.YOUTUBE:
-                oauth_config['installed']['scopes'] = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive']
+                # see https://developers.google.com/youtube/v3/guides/auth/installed-apps 
+                oauth_config['installed']['scopes'] = [
+                    'https://www.googleapis.com/auth/youtube.readonly' # View one's YouTube account (read-only) 
+                    ]
                 oauth_config['installed']['auth_uri'] = 'https://accounts.google.com/o/oauth2/v2/auth'
                 oauth_config['installed']['token_uri'] = 'https://accounts.google.com/o/oauth2/token'
             case _:

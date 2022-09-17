@@ -1,8 +1,8 @@
 import os
-from tabnanny import check 
+from typing import Any 
 import yaml 
 
-def check_key(object, key_name):
+def check_key_and_return_value(object: Any, key_name: str | list)->Any:
     """Test whether `key_name` is contained in `object`
     If not, throws an exception. 
     `key_name` wan be a list, e.g. ['a', 'b', 'c']
@@ -21,6 +21,7 @@ def check_key(object, key_name):
         
         current_object = current_object[k]
 
+    return current_object
 
 def load_config_from_file(config_folder_name='data', config_file_name='config.yaml'):
     PROJECT_ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
@@ -28,7 +29,7 @@ def load_config_from_file(config_folder_name='data', config_file_name='config.ya
     with open(os.path.join(PROJECT_ROOT_PATH, config_folder_name, config_file_name), 'r') as config_file: 
         config = yaml.load(config_file, Loader=yaml.FullLoader) 
     
-    check_key(config, ['output', 'temp_dir_path']) 
+    check_key_and_return_value(config, ['output', 'temp_dir_path']) 
 
     TEMP_DIR_PATH = config['output']['temp_dir_path'].replace('$ROOT', PROJECT_ROOT_PATH)
 

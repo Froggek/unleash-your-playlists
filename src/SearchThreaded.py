@@ -24,9 +24,14 @@ class SearchThreading(threading.Thread):
         count:int = 0  
 
         for item in self.__playlist_tracks:
-            track = item['track']
-            track_name = track['name']
-            artists = ' '.join(artist['name'] for artist in track['artists'])
+            #TODO track = item['track']
+            # TODO track_name = track['name']
+            track = item['name']
+            track_name = item['name']
+            if 'artists' in track: 
+                artists = ' '.join(artist['name'] for artist in track['artists'])
+            else:
+                artists = None
             count += 1
 
             nb_hits, id = self.__music_provider.search_track(track_name, artists) 

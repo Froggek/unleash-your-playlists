@@ -1,5 +1,3 @@
-from math import floor
-from urllib.request import Request
 import requests, os, yaml 
 from urllib.error import HTTPError
 import json 
@@ -8,14 +6,7 @@ from SearchThreaded import SearchThreading
 
 class MusicProviderDeezer(MusicProvider):
     def __init__(self, config_credentials=None):
-        super().__init__(MusicProviderName.DEEZER, config_credentials)
-    
-    def _retrieve_access_token(self, config_credentials) -> bool:
-        if 'access_token' in config_credentials: 
-            self.set_access_token(config_credentials['access_token'])
-            return True
-        
-        return False 
+        super().__init__(MusicProviderName.DEEZER, config_credentials) 
 
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
         if not access_token:
@@ -91,19 +82,22 @@ class MusicProviderDeezer(MusicProvider):
         if nb_threads < 1:
             raise Exception('The number of threads must be at least 1')
 
+        # No need to thread-ify if the playlist is small 
+        ACTUAL_NB_THREADS = nb_threads if len(playlist_tracks) > nb_threads else 1
+
         deezer_tracks_ids = []
 
         # return deezer_tracks_ids
         
         threads = list()
         # Launching the threads
-        for i in range(nb_threads):
-            threads.append(SearchThreading(self, playlist_tracks[i::nb_threads]))
+        for i in range(ACTUAL_NB_THREADS):
+            threads.append(SearchThreading(self, playlist_tracks[i::ACTUAL_NB_THREADS]))
             threads[i].start()
 
         # Collecting the results 
         # TODO: keep order 
-        for i in range(nb_threads):
+        for i in range(ACTUAL_NB_THREADS):
             threads[i].join()
             deezer_tracks_ids += threads[i].output_track_ids
 

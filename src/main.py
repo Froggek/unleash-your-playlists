@@ -10,13 +10,13 @@ from SearchThreaded import SearchThreading
 if __name__ == '__main__':    
     config, TEMP_DIR_PATH = FileHelpers.load_config_from_file()
 
-    FileHelpers.check_key(config, ['source', 'playlist_id'])
-    FileHelpers.check_key(config, ['target', 'playlist_id'])
-    FileHelpers.check_key(config, ['credentials', 'spotify'])
-    FileHelpers.check_key(config, ['credentials', 'deezer'])
-    FileHelpers.check_key(config, ['credentials', 'youtube'])
+    FileHelpers.check_key_and_return_value(config, ['source', 'playlist_id'])
+    FileHelpers.check_key_and_return_value(config, ['target', 'playlist_id'])
+    # FileHelpers.check_key_and_return_value(config, ['credentials', 'spotify'])
+    FileHelpers.check_key_and_return_value(config, ['credentials', 'deezer'])
+    FileHelpers.check_key_and_return_value(config, ['credentials', 'youtube'])
     
-    spotify:MusicProviderSpotify = MusicProviderSpotify(config['credentials']['spotify'])
+    # spotify:MusicProviderSpotify = MusicProviderSpotify(config['credentials']['spotify'])
     deezer:MusicProviderDeezer = MusicProviderDeezer(config['credentials']['deezer'])
     youtube:MusicProviderYouTube = MusicProviderYouTube(config['credentials']['youtube'])
 

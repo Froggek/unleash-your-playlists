@@ -11,6 +11,13 @@ class MusicProviderSpotify(MusicProvider):
         
 
     def _retrieve_access_token(self, config_credentials) -> bool:
+        """If an access token is available, stores it. 
+        Else, if a refresh token is available, a new access token is geerated ans stored
+        Otherwise, returns False"""
+
+        if super()._retrieve_access_token(self, config_credentials):
+            return True
+
         if all(k in config_credentials for k in ('app_id', 'app_secret', 'refresh_token')): 
             # TODO: log refresh token used 
             # TODO: check scopes? 

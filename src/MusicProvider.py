@@ -34,9 +34,14 @@ class MusicProvider(ABC):
     def _get_access_token(self)->str:
         return self.__access_token    
 
-    @abstractmethod
-    def _retrieve_access_token(self, config_credentials)->bool:
-        raise NotImplementedError
+    def _retrieve_access_token(self, config_credentials) -> bool:
+        """If an access token already exists, stores it.
+        Otherwise, returns False"""
+        if 'access_token' in config_credentials: 
+            self.set_access_token(config_credentials['access_token'])
+            return True
+        
+        return False
 
     def __generate_access_token(self, config_credentials)->None:
         if all(k in config_credentials for k in ('app_id', 'app_secret')): 
