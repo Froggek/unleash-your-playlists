@@ -3,13 +3,21 @@ from urllib.request import Request
 import requests, os, yaml 
 from urllib.error import HTTPError
 import json 
-
-from MusicProvider import MusicProvider
+from MusicProvider import MusicProvider, MusicProviderName
 from SearchThreaded import SearchThreading
 
 class MusicProviderDeezer(MusicProvider):
+    def __init__(self, config_credentials=None):
+        super().__init__(MusicProviderName.DEEZER, config_credentials)
+    
+    def _retrieve_access_token(self, config_credentials) -> bool:
+        if 'access_token' in config_credentials: 
+            self.set_access_token(config_credentials['access_token'])
+            return True
+        
+        return False 
+
     def set_access_token(self, access_token=None, client_id=None, client_secret=None, refresh_token=None):
-        # TODO
         if not access_token:
             raise Exception('Access token is required')
 
@@ -143,6 +151,7 @@ class MusicProviderDeezer(MusicProvider):
         # TODO maxQueryString = 1024 characters 
         query_params['songs'] = ','.join(str(track) for track in tracks_set) 
         response = requests.post(f'https://api.deezer.com/playlist/{ playlist_id }/tracks', params=query_params)
+        # TODO: log the tracks which have been added 
         self.check_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
 
 

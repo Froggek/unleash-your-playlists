@@ -1,34 +1,35 @@
-from array import array
 import os
-import yaml 
+import FileHelpers 
 
 from MusicProviderDeezer import MusicProviderDeezer
 from MusicProviderSpotify import MusicProviderSpotify
+from MusicProviderYouTube import MusicProviderYouTube
 from SearchThreaded import SearchThreading
 
-if __name__ == '__main__':
-    PROJECT_ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
+
+if __name__ == '__main__':    
+    config, TEMP_DIR_PATH = FileHelpers.load_config_from_file()
+
+    FileHelpers.check_key(config, ['source', 'playlist_id'])
+    FileHelpers.check_key(config, ['target', 'playlist_id'])
+    FileHelpers.check_key(config, ['credentials', 'spotify'])
+    FileHelpers.check_key(config, ['credentials', 'deezer'])
+    FileHelpers.check_key(config, ['credentials', 'youtube'])
     
-    with open(os.path.join(PROJECT_ROOT_PATH, 'data', 'config.yaml'), 'r') as config_file: 
-        config = yaml.load(config_file, Loader=yaml.FullLoader) 
-
-    TEMP_DIR_PATH = config['output']['temp_dir_path'].replace('$ROOT', PROJECT_ROOT_PATH)
-
-
-    spotify:MusicProviderSpotify = MusicProviderSpotify('spotify.com')
-    spotify_credentials = config['credentials']['spotify']
-    # TODO: have this in ctor 
-    spotify.set_access_token(client_id=spotify_credentials['app_id'], client_secret=spotify_credentials['app_secret']\
-        , refresh_token=spotify_credentials['refresh_token'])
-
-    deezer:MusicProviderDeezer = MusicProviderDeezer('deezer.com')
-    deezer.set_access_token(access_token=config['credentials']['deezer']['access_token'])
+    spotify:MusicProviderSpotify = MusicProviderSpotify(config['credentials']['spotify'])
+    deezer:MusicProviderDeezer = MusicProviderDeezer(config['credentials']['deezer'])
+    youtube:MusicProviderYouTube = MusicProviderYouTube(config['credentials']['youtube'])
 
     # TODO: check source service 
-    playlist_tracks = spotify.retrieve_playlist(playlist_id=config['source']['playlist_id']\
+    # playlist_tracks = spotify.retrieve_playlist(playlist_id=config['source']['playlist_id']\
+    #    , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
+    #    # , test_threshold=100\
+    #    ) 
+    playlist_tracks = youtube.retrieve_playlist(playlist_id=config['source']['playlist_id']\
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
         # , test_threshold=100\
         ) 
+
 
     # TODO 
     deezer_tracks_ids = deezer.search_tracks(playlist_tracks\
