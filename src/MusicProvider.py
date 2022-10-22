@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
-from xmlrpc.client import Boolean
+from typing import Any
 import requests
 from urllib.parse import urlparse
 from urllib.error import HTTPError
 from MusicProviderName import MusicProviderName 
 from TokenGenerator import TokenGenerator
-
 
 class MusicProvider(ABC):
     def __init__(self, provider_name: MusicProviderName, config_credentials=None): 
@@ -101,3 +100,19 @@ class MusicProvider(ABC):
 
     def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
         raise NotImplementedError
+
+
+from MusicProviderDeezer import MusicProviderDeezer
+from MusicProviderSpotify import MusicProviderSpotify
+from MusicProviderYouTube import MusicProviderYouTube
+
+def create_provider(provider_name: str, credentials: Any) -> MusicProvider:    
+    match provider_name: 
+        case 'deezer': 
+            return MusicProviderDeezer(credentials)
+        # case 'spotify':
+        #     return MusicProviderSpotify(credentials)
+        case 'youtube':
+            return MusicProviderYouTube(credentials)
+        case _: 
+            raise KeyError(f"The music provider ${provider_name} is unknown, or not supported")
