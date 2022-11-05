@@ -78,10 +78,45 @@ class MusicProviderYouTube(MusicProvider):
 
         print(tracks)
         return tracks
-
         #TODO: pagination (pageToken...) 
 
+
     def search_track(self, track_name: str = '', artist_names: str = '', raw_query: str = '', output_file_path: str = '') -> tuple:
-        return super().search_track(track_name, artist_names, raw_query, output_file_path)
+            # 'https://youtube.googleapis.com/youtube/v3/search?
+            # --header 'Authorization: Bearer [YOUR_ACCESS_TOKEN]' \
+            # --header 'Accept: application/json' \
+            # --compressed
+        # See search:list method 
+        # https://developers.google.com/youtube/v3/docs/search/list 
+        
+        #TODO: raw_query to be mutualized 
+        #TODO: use client? 
+        #TODO: _forge_and_send_request? 
+        request_headers = {
+            'Authorization': f'Bearer { self._get_access_token() }', 
+            'Accept': 'application/json' # reequired? 
+        }
+        raw_query = track_name
+        query_params = {
+            'part': 'snippet', # required  
+            'q': raw_query, # query
+            'type': 'video'
+        }
+
+        response = requests.get(url=f'https://youtube.googleapis.com/youtube/v3/search', params=query_params, headers=request_headers)
+
+        self.check_response_2xx(response, custom_error_message=f'An error happened while searching for track { track_name } \
+            (provider: { self.PROVIDER_NAME })')
+
+        # TODO: might fail 
+        response_json = response.json()
+
+        total = FileHelpers.check_key_and_return_value(response_json, ('pageInfo', 'totalResults'))
+        if total == 0:
+            first_track_id = None
+        else: 
+            first_track_id = FileHelpers.check_key_and_return_value(response_json, ('items', 0, 'id', 'videoId'))        
+        
+        return total, first_track_id
 
 

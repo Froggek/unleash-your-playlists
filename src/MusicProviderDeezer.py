@@ -29,7 +29,7 @@ class MusicProviderDeezer(MusicProvider):
 
     def _forge_and_send_request(self, endpoint: str, query_params: dict, custom_error_msg: str='', safe_error_codes: list=[])->requests.Response:
         query_params['access_token'] = self._get_access_token()
-
+        #TODO: domain is in class? 
         response = requests.get(f'https://api.deezer.com/{ endpoint }', params=query_params)
         
         # Handling codes != 2xx 
@@ -67,13 +67,16 @@ class MusicProviderDeezer(MusicProvider):
 
             response_json = response.json() 
 
+            # TODO: what if no response? 
+            #TODO: factor w/ YouTube 
             total = response_json['total'] 
             first_track_id = (response_json['data'][0]['id'] if response_json['data'] else None)
 
         except HTTPError as err: 
             if err.status == 403:
                 # Logging error, but keeping it silent 
-                print(f'Got 403 error while searching for a track on Deezer...OK\n{err}')
+                #TODO: proper log 
+                print(f'Got 403 error while searching for a track on { self.PROVIDER_NAME } ...OK\n{err}')
             else:
                 # Other errors make the request fail
                 raise err 
