@@ -3,7 +3,6 @@ import requests, os, yaml
 from urllib.error import HTTPError
 import json 
 from MusicProvider import MusicProvider, MusicProviderName
-from SearchThreaded import SearchThreading
 
 class MusicProviderDeezer(MusicProvider):
     def __init__(self, config_credentials=None):
@@ -53,7 +52,7 @@ class MusicProviderDeezer(MusicProvider):
             # query_params['q'] = 'artist:"Elephanz Eugénie" track:"Maryland"'
             query_params['q'] = (f'artist:"{ artist_names }"' if artist_names else '') + f'track:"{ track_name }"'
         else:
-            raise NotFoundErr('Either a raw query of a track\'s name is required to perform a search')
+            raise NotFoundErr('Either a raw query or a track\'s name is required to perform a search')
 
         # With Deezer, when searching for a title, 
         # a 403-error can arise... 
@@ -83,36 +82,7 @@ class MusicProviderDeezer(MusicProvider):
 
         finally: 
             return total, first_track_id
-        
 
-    def search_tracks(self, playlist_tracks: list, output_file_path:str='', nb_threads=1)->list: 
-        if nb_threads < 1:
-            raise Exception('The number of threads must be at least 1')
-
-        # No need to thread-ify if the playlist is small 
-        ACTUAL_NB_THREADS = nb_threads if len(playlist_tracks) > nb_threads else 1
-
-        deezer_tracks_ids = []
-
-        # return deezer_tracks_ids
-        
-        threads = list()
-        # Launching the threads
-        for i in range(ACTUAL_NB_THREADS):
-            threads.append(SearchThreading(self, playlist_tracks[i::ACTUAL_NB_THREADS]))
-            threads[i].start()
-
-        # Collecting the results 
-        # TODO: keep order 
-        for i in range(ACTUAL_NB_THREADS):
-            threads[i].join()
-            deezer_tracks_ids += threads[i].output_track_ids
-
-        if (output_file_path): 
-            with open(output_file_path, 'w') as f: 
-                f.write(json.dumps(deezer_tracks_ids))
-
-        return deezer_tracks_ids
 
     def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list):
         # TODO: option to previously clear the playlist 

@@ -1,16 +1,17 @@
 import threading
-from xml.dom import NotFoundErr
-
-from MusicProvider import MusicProvider
 import FileHelpers
+from collections.abc import Callable 
 
-#TODO: caution - this is Deezer-specific 
 class SearchThreading(threading.Thread):
-    def __init__(self, music_provider: MusicProvider, playlist_tracks: list):
+    """
+        Helper to parallelize the search queries across various music providers 
+    """
+
+    def __init__(self, playlist_tracks: list, search_track_fn: Callable[[dict], tuple]):
         threading.Thread.__init__(self)
-        self.__music_provider = music_provider
         self.__playlist_tracks = playlist_tracks
         self.__output_track_ids = []
+        self.__search_track_fn = search_track_fn
 
     @property
     def output_track_ids(self): 
@@ -26,17 +27,7 @@ class SearchThreading(threading.Thread):
 
         for item in self.__playlist_tracks:
             track = FileHelpers.check_key_and_return_value(item, 'track')
-
-            if 'raw' in track:
-                nb_hits, id = self.__music_provider.search_track(raw_query=track['raw'])
-            
-            elif 'name' in track: 
-                nb_hits, id = self.__music_provider.search_track(track_name=track['name'], 
-                                artist_names=(' '.join(artist['name'] for artist in track['artists'])) if 'artists' in track 
-                                                    else None) 
-            
-            else: 
-                raise NotFoundErr('Either a raw query or a track\'s name is required to perform a search') 
+            nb_hits, id = self.__search_track_fn(track)
 
             count += 1
 

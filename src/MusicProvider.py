@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Any
-import requests
-from urllib.parse import urlparse
+import requests 
+import json 
 from urllib.error import HTTPError
 from MusicProviderName import MusicProviderName 
 from TokenGenerator import TokenGenerator
+from SearchThreaded import SearchThreading
 
 class MusicProvider(ABC):
     def __init__(self, provider_name: MusicProviderName, config_credentials=None): 
@@ -90,16 +91,55 @@ class MusicProvider(ABC):
 
     @abstractmethod
     def retrieve_playlist(self, playlist_id, out_file_path='', test_threshold=None)->list:
-        raise NotImplementedError
-
-    def search_tracks(self, playlist_tracks: list, output_file_path:str='')->list: 
-        raise NotImplementedError
-
-    def search_track(self, track_name: str='', artist_names:str='', raw_query:str='', output_file_path:str='')->tuple:
         raise NotImplementedError 
 
     def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
         raise NotImplementedError
+
+    def search_tracks(self, playlist_tracks: list, output_file_path:str='', nb_threads=1)->list: 
+        if nb_threads < 1:
+            raise Exception('The number of threads must be at least 1')
+
+        # No need to thread-ify if the playlist is small 
+        ACTUAL_NB_THREADS = nb_threads if len(playlist_tracks) > nb_threads else 1
+
+        deezer_tracks_ids = []
+
+        # return deezer_tracks_ids
+        
+        threads = list()
+        # Launching the threads
+
+        for i in range(ACTUAL_NB_THREADS):
+            threads.append(SearchThreading(playlist_tracks[i::ACTUAL_NB_THREADS], self._search_track_in_thread))
+            threads[i].start()
+
+        # Collecting the results 
+        # TODO: keep order 
+        for i in range(ACTUAL_NB_THREADS):
+            threads[i].join()
+            deezer_tracks_ids += threads[i].output_track_ids
+
+        if (output_file_path): 
+            with open(output_file_path, 'w') as f: 
+                f.write(json.dumps(deezer_tracks_ids))
+
+        return deezer_tracks_ids
+    
+    @abstractmethod
+    def search_track(self, track_name: str='', artist_names:str='', raw_query:str='', output_file_path:str='')->tuple:
+        raise NotImplementedError
+
+    def _search_track_in_thread(self, track: dict) -> tuple:
+        if 'raw' in track:
+            return self.search_track(raw_query=track['raw'])
+
+        elif 'name' in track: 
+            return self.search_track(track_name=track['name'], 
+                            artist_names=(' '.join(artist['name'] for artist in track['artists'])) if 'artists' in track 
+                                                else None) 
+        else: 
+            raise KeyError('Either a raw query or a track\'s name is required to perform a search') 
 
 
 from MusicProviderDeezer import MusicProviderDeezer
@@ -110,8 +150,8 @@ def create_provider(provider_name: str, credentials: Any) -> MusicProvider:
     match provider_name: 
         case 'deezer': 
             return MusicProviderDeezer(credentials)
-        # case 'spotify':
-        #     return MusicProviderSpotify(credentials)
+        case 'spotify':
+            return MusicProviderSpotify(credentials)
         case 'youtube':
             return MusicProviderYouTube(credentials)
         case _: 

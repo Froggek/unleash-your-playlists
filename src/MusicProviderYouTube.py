@@ -81,4 +81,7 @@ class MusicProviderYouTube(MusicProvider):
 
         #TODO: pagination (pageToken...) 
 
+    def search_track(self, track_name: str = '', artist_names: str = '', raw_query: str = '', output_file_path: str = '') -> tuple:
+        return super().search_track(track_name, artist_names, raw_query, output_file_path)
+
 

@@ -19,23 +19,18 @@ if __name__ == '__main__':
     FileHelpers.check_key_and_return_value(config, ['target', 'playlist_id'])
     FileHelpers.check_key_and_return_value(config, ['target', 'service'])
     source_service, target_service = config['source']['service'], config['target']['service']
-    # FileHelpers.check_key_and_return_value(config, ['credentials', 'spotify'])
+    FileHelpers.check_key_and_return_value(config, ['credentials', 'spotify'])
     FileHelpers.check_key_and_return_value(config, ['credentials', 'deezer'])
     FileHelpers.check_key_and_return_value(config, ['credentials', 'youtube'])
     
-    # spotify:MusicProviderSpotify = MusicProviderSpotify(config['credentials']['spotify'])
-    # deezer:MusicProviderDeezer = MusicProviderDeezer(config['credentials']['deezer'])
-    # youtube:MusicProviderYouTube = MusicProviderYouTube(config['credentials']['youtube'])
 
     source_provider = create_provider(source_service, config['credentials'][source_service])
     target_provider = create_provider(target_service, config['credentials'][target_service])
 
-    # TODO: check source service 
     # playlist_tracks = spotify.retrieve_playlist(playlist_id=config['source']['playlist_id']\
     #    , out_file_path=os.path.join(TEMP_DIR_PATH, 'playlist.tmp.json')\
     #    # , test_threshold=100\
     #    ) 
-    
 
     playlist_tracks = source_provider.retrieve_playlist(playlist_id=config['source']['playlist_id']\
         , out_file_path=os.path.join(TEMP_DIR_PATH, 'output_source_tracks.tmp.json')\
