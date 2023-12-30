@@ -12,10 +12,6 @@
 # test files / sandboxes
 **/sandbox.py
 
-# Python venv 
-Scripts/
-pyvenv.cfg
-
 ### Defaults ###
 
 # Byte-compiled / optimized / DLL files
@@ -122,6 +118,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+# [ADDE] See https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment
 .env
 .venv
 env/
