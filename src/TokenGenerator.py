@@ -28,7 +28,7 @@ class TokenGenerator:
                 # TODO - Deezer 
                 #   'manage_library' should only be present when we need to add tracks to a playlist (aka Deezer is target)
                 #   'manage_library' must be set as first scope (otherwise, it looks ignored?) 
-                oauth_config['installed']['scopes'] = ['manage_library', 'basic_access', 'email'] #TODO 
+                oauth_config['installed']['scopes'] = ['manage_library', 'basic_access', 'email']
                 oauth_config['installed']['auth_uri'] = 'https://connect.deezer.com/oauth/auth.php'
                 oauth_config['installed']['token_uri'] = 'https://connect.deezer.com/oauth/access_token.php'
             case MusicProviderName.SPOTIFY: 

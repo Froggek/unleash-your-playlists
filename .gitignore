@@ -5,6 +5,7 @@
 
 # config
 */**/config.yaml
+*/**/config-backup.yaml
 */**/config-*.json
 
 # temp data

@@ -87,7 +87,7 @@ class MusicProviderDeezer(MusicProvider):
             return total, first_track_id
 
 
-    def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list):
+    def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list) -> None:
         query_params = { 'access_token': self._get_access_token() }
         # Thank you steinitzu 
         # https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py 
@@ -127,15 +127,9 @@ class MusicProviderDeezer(MusicProvider):
         self.check_response_2xx(response, f'Error while adding tracks: {query_params["songs"]}')
 
 
-    def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
-        if not tracks_ids:  
-            if tracks_file_path: 
-                with open(tracks_file_path) as f: 
-                    tracks_ids = json.loads(f.read())
-            else: 
-                raise Exception('Either a list of tracks or a track file must be provided')
-
-        return self.__add_tracks_to_playlist(playlist_id, tracks_ids)
+    def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None) -> None:
+        return self.__add_tracks_to_playlist(playlist_id, 
+                                             super().add_tracks_to_playlist_pre(tracks_ids, tracks_file_path))
 
 
     def retrieve_playlist(self, playlist_id, out_file_path='', test_threshold=None) -> list:

@@ -96,7 +96,19 @@ class MusicProvider(ABC):
     def retrieve_playlist(self, playlist_id, out_file_path='', test_threshold=None)->list:
         raise NotImplementedError 
 
-    def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
+    def add_tracks_to_playlist_pre(self, tracks_ids:list=None, tracks_file_path:str=None) -> list:
+        # Checks whether we should get the list of track IDs, of read it from a file
+        if tracks_ids:
+            return tracks_ids
+        
+        if tracks_file_path: 
+            with open(tracks_file_path) as f: 
+                tracks_ids = json.loads(f.read())
+            return tracks_ids
+    
+        raise Exception('Either a list of tracks or a track file must be provided')
+        
+    def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None) -> None:
         # TODO: option to previously clear the playlist 
         raise NotImplementedError
 

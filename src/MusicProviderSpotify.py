@@ -88,6 +88,6 @@ class MusicProviderSpotify(MusicProvider):
     def search_track(self, track_name: str = '', artist_names: str = '', raw_query: str = '', output_file_path: str = '') -> tuple:
         raise NotImplementedError
 
-    def add_tracks_to_playlist(self, playlist_id, tracks_ids: list = None, tracks_file_path: str = None):
-        print('coucou')
-        return super().add_tracks_to_playlist(playlist_id, tracks_ids, tracks_file_path)
+    def add_tracks_to_playlist(self, playlist_id, tracks_ids: list = None, tracks_file_path: str = None) -> None:
+        super().add_tracks_to_playlist_pre(tracks_ids, tracks_file_path)
+        return NotImplementedError
