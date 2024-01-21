@@ -1,6 +1,7 @@
 # VS stuffs 
 *.code-workspace
 *.vscode
+*.DS_Store
 
 # config
 */**/config.yaml
