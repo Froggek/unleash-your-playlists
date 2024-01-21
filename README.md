@@ -58,6 +58,10 @@ For each music provider:
 
 ### Feature Requests
 - Setup guide (incl. list of dependencies)
+- Packaging (see [good practices](https://packaging.python.org/en/latest/overview/#packaging-applications))
+- Better authn/authz flow (no back-end code). See: 
+    - https://developers.google.com/identity/protocols/oauth2/web-server#creatingclient 
+    - https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow 
 - Additional use cases
 
 ## Credits 
