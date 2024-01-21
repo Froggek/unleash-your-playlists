@@ -22,7 +22,7 @@ class MusicProviderDeezer(MusicProvider):
         # A single boolean can be returned if the request succeeds 
         if isinstance(rep.json(), dict) and 'error' in rep.json():
             deezer_error = rep.json()['error'] 
-            return False, f'Code: {deezer_error["code"]} ({deezer_error["type"]}) - Message: {deezer_error["message"]}'
+            return False, f"""{'Code: ' + deezer_error['code'] if 'code' in deezer_error else ''} ({deezer_error['type']}) - Message: {deezer_error['message']}"""
         
         return True, ''
 
@@ -88,8 +88,6 @@ class MusicProviderDeezer(MusicProvider):
 
 
     def __add_tracks_to_playlist(self, playlist_id: str, tracks_ids: list):
-        # TODO: option to previously clear the playlist 
-
         query_params = { 'access_token': self._get_access_token() }
         # Thank you steinitzu 
         # https://github.com/steinitzu/pydeezer/blob/master/pydeezer/__init__.py 
@@ -135,7 +133,7 @@ class MusicProviderDeezer(MusicProvider):
                 with open(tracks_file_path) as f: 
                     tracks_ids = json.loads(f.read())
             else: 
-                raise Exception('Either a list of tracks or a track file path are required')
+                raise Exception('Either a list of tracks or a track file must be provided')
 
         return self.__add_tracks_to_playlist(playlist_id, tracks_ids)
 

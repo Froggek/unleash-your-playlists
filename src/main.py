@@ -19,9 +19,10 @@ if __name__ == '__main__':
     FileHelpers.check_key_and_return_value(config, ['target', 'playlist_id'])
     FileHelpers.check_key_and_return_value(config, ['target', 'service'])
     source_service, target_service = config['source']['service'], config['target']['service']
+    # TODO: necessary? probably not, depends on the need 
     FileHelpers.check_key_and_return_value(config, ['credentials', 'spotify'])
     FileHelpers.check_key_and_return_value(config, ['credentials', 'deezer'])
-    FileHelpers.check_key_and_return_value(config, ['credentials', 'youtube'])
+    # FileHelpers.check_key_and_return_value(config, ['credentials', 'youtube'])
     
 
     source_provider = create_provider(source_service, config['credentials'][source_service])

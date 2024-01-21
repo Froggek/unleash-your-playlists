@@ -51,6 +51,9 @@ class MusicProvider(ABC):
             self.set_access_token(client_id=config_credentials['app_id'] \
                 , client_secret=config_credentials['app_secret'] \
                 , access_token=access_token)
+            
+            #TODO: remove this 
+            print(self.__DOMAIN_NAME, access_token)
 
         else: 
             raise Exception(f'A client ID and secret are required for the "{self.PROVIDER_NAME.name}" provider')     
@@ -94,6 +97,7 @@ class MusicProvider(ABC):
         raise NotImplementedError 
 
     def add_tracks_to_playlist(self, playlist_id, tracks_ids:list=None, tracks_file_path:str=None):
+        # TODO: option to previously clear the playlist 
         raise NotImplementedError
 
     def search_tracks(self, playlist_tracks: list, output_file_path:str='', nb_threads=1)->list: 
@@ -102,10 +106,7 @@ class MusicProvider(ABC):
 
         # No need to thread-ify if the playlist is small 
         ACTUAL_NB_THREADS = nb_threads if len(playlist_tracks) > nb_threads else 1
-
-        deezer_tracks_ids = []
-
-        # return deezer_tracks_ids
+        tracks_ids = []
         
         threads = list()
         # Launching the threads
@@ -118,13 +119,13 @@ class MusicProvider(ABC):
         # TODO: keep order 
         for i in range(ACTUAL_NB_THREADS):
             threads[i].join()
-            deezer_tracks_ids += threads[i].output_track_ids
+            tracks_ids += threads[i].output_track_ids
 
         if (output_file_path): 
             with open(output_file_path, 'w') as f: 
-                f.write(json.dumps(deezer_tracks_ids))
+                f.write(json.dumps(tracks_ids))
 
-        return deezer_tracks_ids
+        return tracks_ids
     
     @abstractmethod
     def search_track(self, track_name: str='', artist_names:str='', raw_query:str='', output_file_path:str='')->tuple:
