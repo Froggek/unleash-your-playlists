@@ -37,13 +37,21 @@ TODO
 ### Configuration
 TODO
 
-Create a `data/config.yaml` file (based on `data/config.yaml.example`) which contains, at least: 
+- Spotify app (for OAuth2 flow): 
+    - From [Spotify for developers](https://developer.spotify.com/)
+    - Redirect URIs: the port and final slash must be mentioned. 
+    E.g. `http://localhost:8081/`  
+- Deezer app: 
+    - From [Deezer Developers](https://developers.deezer.com/)
 
-- A **Spotify** (OAuth 2) access token 
-- A **deezer** (OAuth 2) access token.  
+- Create a `data/config.yaml` file (based on `data/config.yaml.example`) which contains, at least: 
+    - A **Spotify** (OAuth 2) access token 
+    - A **deezer** (OAuth 2) access token.  
 
 ### Play! 
-Simply execute `src/main.py` using **Python 3** 
+- Simply execute `src/main.py` using **Python 3** 
+
+<img alt="Spotify authorization screen" title="Spotify authorization screen" src="./src/assets/consent_screen-spotify.png" width="70%" />
 
 ## Technical Considerations
 ### Authorization
@@ -55,13 +63,19 @@ For each music provider:
 ## Roadmap
 
 ### Bugs
+- Error messages should be more user-friendly
+    - E.g. 
+    > urllib.error.HTTPError: HTTP Error 200: Code: 300 (OAuthException) - Message: Invalid OAuth access token.
+- Minimum scopes (OAuth2) should be required
 
 ### Feature Requests
 - Setup guide (incl. list of dependencies)
+- Have a CLI 
 - Packaging (see [good practices](https://packaging.python.org/en/latest/overview/#packaging-applications))
 - Better authn/authz flow (no back-end code). See: 
     - https://developers.google.com/identity/protocols/oauth2/web-server#creatingclient 
     - https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow 
+- (Dev) Save access token after the first OAuth2 flow
 - Additional use cases
 
 ## Credits 
